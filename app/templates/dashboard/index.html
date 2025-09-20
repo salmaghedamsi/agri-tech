@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AgriConnect{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="jumbotron bg-success text-white p-4 rounded">
+                <h1 class="display-4">
+                    <i class="fas fa-tachometer-alt me-3"></i>Welcome to AgriConnect
+                </h1>
+                <p class="lead">Your smart farming dashboard - {{ current_user.get_full_name() }}</p>
+                <p class="mb-0">User Type: <span class="badge bg-light text-dark">{{ current_user.user_type.title() }}</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        {% if current_user.is_farmer() %}
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.total_products }}</h4>
+                                <p class="card-text">Total Products</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-box fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.active_listings }}</h4>
+                                <p class="card-text">Active Listings</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-store fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.total_sales }}</h4>
+                                <p class="card-text">Total Sales</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.enrolled_courses }}</h4>
+                                <p class="card-text">Enrolled Courses</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-graduation-cap fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif current_user.is_investor() %}
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.total_investments }}</h4>
+                                <p class="card-text">Total Investments</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.active_proposals }}</h4>
+                                <p class="card-text">Active Proposals</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-handshake fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.total_invested }}</h4>
+                                <p class="card-text">Total Invested</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.land_listings }}</h4>
+                                <p class="card-text">Land Listings</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-map-marker-alt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif current_user.is_expert() %}
+            <div class="col-md-3 mb-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.total_courses }}</h4>
+                                <p class="card-text">Total Courses</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-graduation-cap fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.total_students }}</h4>
+                                <p class="card-text">Total Students</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.mentoring_sessions }}</h4>
+                                <p class="card-text">Mentoring Sessions</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-user-tie fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">{{ stats.forum_posts }}</h4>
+                                <p class="card-text">Forum Posts</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-comments fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Weather Section -->
+    {% if weather_data %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cloud-sun me-2"></i>Current Weather - {{ weather_data.location }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 text-center">
+                            <i class="fas fa-{{ weather_data.get_weather_icon() }} fa-3x text-primary"></i>
+                            <h3 class="mt-2 {{ weather_data.get_temperature_color() }}">{{ weather_data.temperature }}°C</h3>
+                            <p class="text-muted">{{ weather_data.weather_description }}</p>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <i class="fas fa-tint text-info"></i>
+                                        <p class="mb-0">Humidity</p>
+                                        <h5>{{ weather_data.humidity }}%</h5>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <i class="fas fa-wind text-secondary"></i>
+                                        <p class="mb-0">Wind Speed</p>
+                                        <h5>{{ weather_data.wind_speed }} m/s</h5>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud-rain text-primary"></i>
+                                        <p class="mb-0">Precipitation</p>
+                                        <h5>{{ weather_data.precipitation }}mm</h5>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <i class="fas fa-sun text-warning"></i>
+                                        <p class="mb-0">UV Index</p>
+                                        <h5>{{ weather_data.uv_index }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Weather Alerts -->
+    {% if weather_alerts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Weather Alerts</h5>
+                {% for alert in weather_alerts %}
+                    <div class="alert alert-{{ alert.get_severity_color() }} mb-2">
+                        <strong>{{ alert.title }}</strong><br>
+                        {{ alert.message }}
+                        <small class="text-muted d-block mt-1">
+                            <i class="fas fa-clock me-1"></i>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- IoT Devices Section (for farmers) -->
+    {% if current_user.is_farmer() and iot_devices %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-microchip me-2"></i>IoT Devices
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for device in iot_devices %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-{{ device.get_status_color() }}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="card-title">{{ device.name }}</h6>
+                                            <p class="card-text text-muted">{{ device.sensor_type.title() }}</p>
+                                        </div>
+                                        <div class="text-{{ device.get_status_color() }}">
+                                            <i class="fas fa-circle fa-sm"></i>
+                                            <small>{{ 'Online' if device.is_online else 'Offline' }}</small>
+                                        </div>
+                                    </div>
+                                    {% if device.get_latest_data() %}
+                                        <div class="mt-2">
+                                            <strong>{{ device.get_latest_data().value }} {{ device.get_latest_data().unit }}</strong>
+                                            <small class="text-muted d-block">{{ device.get_latest_data().timestamp.strftime('%H:%M') }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% if recent_products %}
+                            {% for product in recent_products[:3] %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ product.name }}</h6>
+                                    <small>{{ product.created_at.strftime('%m/%d') }}</small>
+                                </div>
+                                <p class="mb-1 text-muted">{{ product.description[:100] }}...</p>
+                                <small class="text-success">{{ product.price }} TND</small>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% if recent_courses %}
+                            {% for course in recent_courses[:3] %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ course.title }}</h6>
+                                    <small>{{ course.created_at.strftime('%m/%d') }}</small>
+                                </div>
+                                <p class="mb-1 text-muted">{{ course.description[:100] }}...</p>
+                                <small class="text-info">{{ course.difficulty_level.title() }}</small>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Community Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% if recent_forum_posts %}
+                            {% for post in recent_forum_posts[:3] %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ post.title }}</h6>
+                                    <small>{{ post.created_at.strftime('%m/%d') }}</small>
+                                </div>
+                                <p class="mb-1 text-muted">by {{ post.author.get_full_name() }}</p>
+                                <small class="text-primary">{{ post.get_comment_count() }} comments</small>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if current_user.is_farmer() %}
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('marketplace.add_product') }}" class="btn btn-success w-100">
+                                <i class="fas fa-plus me-2"></i>Add Product
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('learning.index') }}" class="btn btn-info w-100">
+                                <i class="fas fa-graduation-cap me-2"></i>Browse Courses
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('investment.create_investment') }}" class="btn btn-warning w-100">
+                                <i class="fas fa-chart-line me-2"></i>Create Investment
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('community.create_post') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-comment me-2"></i>Ask Question
+                            </a>
+                        </div>
+                        {% elif current_user.is_investor() %}
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('investment.index') }}" class="btn btn-success w-100">
+                                <i class="fas fa-search me-2"></i>Find Investments
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('investment.index') }}" class="btn btn-info w-100">
+                                <i class="fas fa-map-marker-alt me-2"></i>Browse Land
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('mentoring.index') }}" class="btn btn-warning w-100">
+                                <i class="fas fa-user-tie me-2"></i>Find Mentors
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('community.index') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-users me-2"></i>Join Community
+                            </a>
+                        </div>
+                        {% elif current_user.is_expert() %}
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('learning.create_course') }}" class="btn btn-success w-100">
+                                <i class="fas fa-plus me-2"></i>Create Course
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('mentoring.create_profile') }}" class="btn btn-info w-100">
+                                <i class="fas fa-user-tie me-2"></i>Become Mentor
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('community.create_post') }}" class="btn btn-warning w-100">
+                                <i class="fas fa-comment me-2"></i>Share Knowledge
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('mentoring.mentor_dashboard') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-tachometer-alt me-2"></i>Mentor Dashboard
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh dashboard data every 5 minutes
+    setInterval(function() {
+        fetch('/api/dashboard/stats')
+            .then(response => response.json())
+            .then(data => {
+                // Update statistics if needed
+                console.log('Dashboard stats updated');
+            });
+    }, 300000);
+</script>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Community Forum - AgriConnect{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-users me-2"></i>Community Forum</h1>
+                <a href="{{ url_for('community.create_post') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>New Post
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="search" placeholder="Search posts..." value="{{ search }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="category">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" name="sort">
+                                <option value="latest" {% if sort_by == 'latest' %}selected{% endif %}>Latest</option>
+                                <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Most Popular</option>
+                                <option value="most_commented" {% if sort_by == 'most_commented' %}selected{% endif %}>Most Commented</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forum Posts -->
+    <div class="row">
+        <div class="col-12">
+            {% for post in posts.items %}
+            <div class="card forum-post mb-3 {% if post.is_pinned %}pinned{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-2">
+                                {% if post.is_pinned %}
+                                <i class="fas fa-thumbtack text-warning me-2"></i>
+                                {% endif %}
+                                <h5 class="card-title mb-0">
+                                    <a href="{{ url_for('community.post_detail', post_id=post.id) }}" class="text-decoration-none">
+                                        {{ post.title }}
+                                    </a>
+                                </h5>
+                            </div>
+                            
+                            <p class="card-text text-muted mb-3">
+                                {{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}
+                            </p>
+                            
+                            <div class="d-flex align-items-center text-muted">
+                                <small class="me-3">
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ post.author.get_full_name() }}
+                                </small>
+                                <small class="me-3">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                                <small class="me-3">
+                                    <i class="fas fa-comments me-1"></i>
+                                    {{ post.get_comment_count() }} comments
+                                </small>
+                                <small class="me-3">
+                                    <i class="fas fa-eye me-1"></i>
+                                    {{ post.view_count }} views
+                                </small>
+                                {% if post.like_count > 0 %}
+                                <small>
+                                    <i class="fas fa-heart text-danger me-1"></i>
+                                    {{ post.like_count }} likes
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <span class="badge bg-{{ post.category.color if post.category.color else 'primary' }}">
+                                {{ post.category.name }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                <h3>No posts found</h3>
+                <p class="text-muted">Be the first to start a discussion!</p>
+                <a href="{{ url_for('community.create_post') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Create First Post
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if posts.pages > 1 %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Forum pagination">
+                <ul class="pagination justify-content-center">
+                    {% if posts.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('community.index', page=posts.prev_num, search=search, category=category_id, sort=sort_by) }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in posts.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != posts.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('community.index', page=page_num, search=search, category=category_id, sort=sort_by) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if posts.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('community.index', page=posts.next_num, search=search, category=category_id, sort=sort_by) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

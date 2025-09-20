@@ -1,0 +1,75 @@
+{% extends 'base.html' %} {% block title %}Create Mentor Profile - AgriConnect{%
+endblock %} {% block content %}
+<div class="container py-4">
+  <h2 class="mb-3">
+    <i class="fas fa-id-badge me-2"></i>Create Mentor Profile
+  </h2>
+  <div class="alert alert-info">
+    Fill in your details to become an expert mentor.
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Specialization</label>
+            <input
+              type="text"
+              name="specialization"
+              class="form-control"
+              placeholder="e.g., Irrigation, Soil Health"
+              required
+            />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Experience (years)</label>
+            <input
+              type="number"
+              name="experience_years"
+              class="form-control"
+              min="0"
+              value="0"
+              required
+            />
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label">Hourly Rate (USD)</label>
+            <input
+              type="number"
+              name="hourly_rate"
+              class="form-control"
+              min="0"
+              step="0.01"
+              value="0"
+            />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Languages</label>
+          <input
+            type="text"
+            name="languages"
+            class="form-control"
+            placeholder="e.g., English, Arabic"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Bio</label>
+          <textarea
+            name="bio"
+            class="form-control"
+            rows="5"
+            placeholder="Tell mentees about your expertise and approach"
+          ></textarea>
+        </div>
+        <div class="d-grid">
+          <button class="btn btn-success" type="submit">
+            <i class="fas fa-save me-1"></i>Create Profile
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

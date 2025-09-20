@@ -1,0 +1,51 @@
+{% extends 'base.html' %} {% block title %}Request Mentoring - AgriConnect{%
+endblock %} {% block content %}
+<div class="container py-4">
+  <h2 class="mb-3"><i class="fas fa-paper-plane me-2"></i>Request Mentoring</h2>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.subject.label(class="form-label") }} {{
+          form.subject(class="form-control") }} {% for e in form.subject.errors
+          %}
+          <div class="text-danger small">{{ e }}</div>
+          {% endfor %}
+        </div>
+        <div class="mb-3">
+          {{ form.description.label(class="form-label") }} {{
+          form.description(class="form-control", rows=5) }} {% for e in
+          form.description.errors %}
+          <div class="text-danger small">{{ e }}</div>
+          {% endfor %}
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            {{ form.preferred_time.label(class="form-label") }} {{
+            form.preferred_time(class="form-control", placeholder="YYYY-MM-DD
+            HH:MM:SS") }} {% for e in form.preferred_time.errors %}
+            <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6 mb-3">
+            {{ form.duration_minutes.label(class="form-label") }} {{
+            form.duration_minutes(class="form-select") }} {% for e in
+            form.duration_minutes.errors %}
+            <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          {{ form.mentor_id.label(class="form-label") }} {{
+          form.mentor_id(class="form-select") }} {% for e in
+          form.mentor_id.errors %}
+          <div class="text-danger small">{{ e }}</div>
+          {% endfor %}
+        </div>
+        <div class="d-grid">{{ form.submit(class="btn btn-primary") }}</div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

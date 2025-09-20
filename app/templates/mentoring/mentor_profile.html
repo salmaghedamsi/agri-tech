@@ -1,0 +1,95 @@
+{% extends 'base.html' %} {% block title %}Mentor Profile - AgriConnect{%
+endblock %} {% block content %}
+<div class="container py-4">
+  <a class="text-decoration-none" href="{{ url_for('mentoring.index') }}"
+    ><i class="fas fa-arrow-left me-1"></i>Back to Mentors</a
+  >
+
+  <div class="row mt-3">
+    <div class="col-lg-8">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div
+              class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 64px; height: 64px"
+            >
+              <i class="fas fa-user-tie fa-lg"></i>
+            </div>
+            <div class="ms-3">
+              {% set user = mentor.get_user() %}
+              <h3 class="mb-0">
+                {{ user.get_full_name() if user else 'Expert Mentor' }}
+              </h3>
+              <div class="text-muted">{{ mentor.specialization }}</div>
+              <div class="mt-1 text-warning">
+                <i class="fas fa-star"></i> {{ '%.1f' % (mentor.rating or 0) }}
+                • {{ mentor.total_sessions or 0 }} sessions
+              </div>
+            </div>
+          </div>
+          <hr />
+          <h5>About</h5>
+          <p class="mb-0">{{ mentor.bio or 'No bio provided.' }}</p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Recent Sessions</h5>
+          {% if recent_sessions %}
+          <ul class="list-group list-group-flush">
+            {% for s in recent_sessions %}
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <div class="fw-semibold">{{ s.title }}</div>
+                <small class="text-muted"
+                  >{{ s.scheduled_time.strftime('%Y-%m-%d %H:%M') if
+                  s.scheduled_time else '' }}</small
+                >
+              </div>
+              <span class="badge bg-{{ s.get_status_color() }}"
+                >{{ s.status.replace('_', ' ').title() }}</span
+              >
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="text-muted">No recent sessions.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Engage</h5>
+          <div class="mb-2">
+            <div class="small text-muted">Languages</div>
+            <div>{{ mentor.languages or 'Not specified' }}</div>
+          </div>
+          <div class="mb-2">
+            <div class="small text-muted">Experience</div>
+            <div>{{ mentor.experience_years }} years</div>
+          </div>
+          <div class="mb-3">
+            <div class="small text-muted">Hourly Rate</div>
+            <div>
+              {{ 'Free' if not mentor.hourly_rate else ('$' ~ ('%.2f' %
+              mentor.hourly_rate)) }}
+            </div>
+          </div>
+          <a
+            href="{{ url_for('mentoring.request_mentoring') }}"
+            class="btn btn-primary w-100"
+          >
+            <i class="fas fa-paper-plane me-1"></i> Request Mentoring
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

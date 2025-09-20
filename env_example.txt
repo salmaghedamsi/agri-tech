@@ -1,0 +1,30 @@
+# AgriConnect Environment Configuration
+# Copy this file to .env and update the values
+
+# Database Configuration
+DATABASE_URL=sqlite:///agriconnect.db
+
+# Security
+SECRET_KEY=your-secret-key-here-change-in-production
+
+# Mail Configuration (for notifications)
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+
+# API Keys
+OPENAI_API_KEY=your-openai-api-key
+WEATHER_API_KEY=your-weather-api-key
+
+# Redis Configuration (for caching and background tasks)
+REDIS_URL=redis://localhost:6379/0
+
+# File Upload Configuration
+UPLOAD_FOLDER=app/static/uploads
+MAX_CONTENT_LENGTH=16777216
+
+# Application Settings
+FLASK_ENV=development
+FLASK_DEBUG=True

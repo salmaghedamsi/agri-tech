@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Marketplace - AgriConnect{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-store me-2"></i>Marketplace</h1>
+                {% if current_user.is_farmer() %}
+                <a href="{{ url_for('marketplace.add_product') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Add Product
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="search" placeholder="Search products..." value="{{ search }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="category">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if category_id == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="sort">
+                                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="row">
+        {% for product in products.items %}
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card product-card h-100">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" class="card-img-top product-image" alt="{{ product.name }}">
+                {% else %}
+                <div class="card-img-top product-image bg-light d-flex align-items-center justify-content-center">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted">{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
+                    
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="h5 text-success mb-0">{{ product.price }} TND</span>
+                            <span class="badge bg-info">{{ product.unit }}</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted">by {{ product.seller.get_full_name() }}</small>
+                            {% if product.is_organic %}
+                            <span class="badge bg-success">Organic</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('marketplace.product_detail', product_id=product.id) }}" class="btn btn-outline-primary btn-sm">
+                                View Details
+                            </a>
+                            <span class="text-muted">
+                                <i class="fas fa-star text-warning"></i>
+                                {{ "%.1f"|format(product.get_average_rating()) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h3>No products found</h3>
+                <p class="text-muted">Try adjusting your search criteria</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if products.pages > 1 %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Products pagination">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('marketplace.index', page=products.prev_num, search=search, category=category_id, sort=sort_by) }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in products.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != products.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('marketplace.index', page=page_num, search=search, category=category_id, sort=sort_by) }}">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('marketplace.index', page=products.next_num, search=search, category=category_id, sort=sort_by) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

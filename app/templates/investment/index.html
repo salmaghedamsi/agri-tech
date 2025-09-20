@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Investment Hub - AgriConnect{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1><i class="fas fa-chart-line me-2"></i>Investment Hub</h1>
+                {% if current_user.is_farmer() %}
+                <a href="{{ url_for('investment.create_investment') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Create Investment
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Investment Opportunities -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3>Investment Opportunities</h3>
+            <div class="row">
+                {% for investment in investments.items %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card investment-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ investment.title }}</h5>
+                            <p class="card-text text-muted">{{ investment.description[:150] }}{% if investment.description|length > 150 %}...{% endif %}</p>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="h5 text-success">{{ investment.amount_requested }} TND</span>
+                                    <span class="badge bg-{{ investment.get_risk_color() }}">{{ investment.risk_level.title() }}</span>
+                                </div>
+                                
+                                <div class="progress investment-progress mb-2">
+                                    <div class="progress-bar" style="width: {{ investment.get_funding_percentage() }}%"></div>
+                                </div>
+                                <small class="text-muted">
+                                    {{ investment.get_funding_percentage()|round(1) }}% funded 
+                                    ({{ investment.amount_raised }} TND raised)
+                                </small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">by {{ investment.farmer.get_full_name() }}</small>
+                                <a href="{{ url_for('investment.investment_detail', investment_id=investment.id) }}" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h4>No investment opportunities found</h4>
+                        <p class="text-muted">Check back later for new opportunities</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Land Listings -->
+    <div class="row">
+        <div class="col-12">
+            <h3>Land Listings</h3>
+            <div class="row">
+                {% for land in land_listings.items %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card land-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ land.title }}</h5>
+                            <p class="card-text text-muted">{{ land.description[:150] }}{% if land.description|length > 150 %}...{% endif %}</p>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="h5 text-success">{{ land.price_per_acre }} TND/acre</span>
+                                    <span class="badge bg-info">{{ land.area_acres }} acres</span>
+                                </div>
+                                <p class="text-muted mb-1">
+                                    <i class="fas fa-map-marker-alt me-1"></i>{{ land.location }}
+                                </p>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-tag me-1"></i>{{ land.listing_type.title() }}
+                                </p>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">by {{ land.owner.get_full_name() }}</small>
+                                <a href="{{ url_for('investment.land_detail', land_id=land.id) }}" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="text-center py-4">
+                        <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                        <h4>No land listings found</h4>
+                        <p class="text-muted">Check back later for new land opportunities</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

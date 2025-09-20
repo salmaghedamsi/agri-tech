@@ -1,0 +1,120 @@
+{% extends 'base.html' %} {% block title %}Mentor Dashboard - AgriConnect{%
+endblock %} {% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">
+      <i class="fas fa-chalkboard-teacher me-2"></i>Mentor Dashboard
+    </h2>
+    <a
+      href="{{ url_for('mentoring.create_profile') }}"
+      class="btn btn-outline-secondary btn-sm"
+    >
+      <i class="fas fa-id-badge me-1"></i> Update Profile
+    </a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Pending Requests</h5>
+          {% if pending_requests %}
+          <div class="list-group list-group-flush">
+            {% for r in pending_requests %}
+            <div
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <div class="fw-semibold">{{ r.subject }}</div>
+                <small class="text-muted">From request #{{ r.id }}</small>
+              </div>
+              <div class="btn-group">
+                <form
+                  method="post"
+                  action="{{ url_for('mentoring.accept_request', request_id=r.id) }}"
+                >
+                  <button class="btn btn-sm btn-success" type="submit">
+                    Accept
+                  </button>
+                </form>
+                <form
+                  method="post"
+                  action="{{ url_for('mentoring.reject_request', request_id=r.id) }}"
+                >
+                  <button class="btn btn-sm btn-outline-danger" type="submit">
+                    Reject
+                  </button>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-muted">No pending requests.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Upcoming Sessions</h5>
+          {% if upcoming_sessions %}
+          <ul class="list-group list-group-flush">
+            {% for s in upcoming_sessions %}
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <div class="fw-semibold">{{ s.title }}</div>
+                <small class="text-muted"
+                  >{{ s.scheduled_time.strftime('%Y-%m-%d %H:%M') if
+                  s.scheduled_time else '' }}</small
+                >
+              </div>
+              <a
+                href="{{ url_for('mentoring.session_detail', session_id=s.id) }}"
+                class="btn btn-sm btn-outline-primary"
+                >Open</a
+              >
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="text-muted">No upcoming sessions.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Recent Sessions</h5>
+          {% if recent_sessions %}
+          <ul class="list-group list-group-flush">
+            {% for s in recent_sessions %}
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <div>
+                <div class="fw-semibold">{{ s.title }}</div>
+                <small class="text-muted"
+                  >{{ s.scheduled_time.strftime('%Y-%m-%d %H:%M') if
+                  s.scheduled_time else '' }}</small
+                >
+              </div>
+              <span class="badge bg-{{ s.get_status_color() }}"
+                >{{ s.status.replace('_', ' ').title() }}</span
+              >
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <div class="text-muted">No recent sessions.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
