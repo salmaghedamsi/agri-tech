@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Add Product - AgriConnect{% endblock %}
+{% block title %}Edit Product - AgriConnect{% endblock %}
 
 {% block content %}
 <div class="container py-4">
@@ -9,8 +9,8 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1><i class="fas fa-plus-circle me-2 text-success"></i>Add New Product</h1>
-                    <p class="text-muted mb-0">List your farm products on the AgriConnect marketplace</p>
+                    <h1><i class="fas fa-edit me-2 text-warning"></i>Edit Product</h1>
+                    <p class="text-muted mb-0">Update your product details on the AgriConnect marketplace</p>
                 </div>
                 <a href="{{ url_for('marketplace.farmer_dashboard') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
@@ -27,6 +27,30 @@
                     <h5 class="mb-0"><i class="fas fa-seedling me-2"></i>Product Details</h5>
                 </div>
                 <div class="card-body">
+                    <!-- Current Product Status -->
+                    <div class="alert alert-info mb-3">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h6 class="mb-1">{{ product.name }}</h6>
+                                <p class="mb-0 small">
+                                    Status: 
+                                    {% if product.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Draft</span>
+                                    {% endif %}
+                                    | Stock: {{ product.get_stock_status() }}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <a href="{{ url_for('marketplace.product_detail', id=product.id) }}" 
+                                   class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fas fa-eye me-1"></i>View Public
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.hidden_tag() }}
                         
@@ -34,7 +58,7 @@
                         <div class="row mb-3">
                             <div class="col-md-8">
                                 {{ form.name.label(class="form-label required") }}
-                                {{ form.name(class="form-control", placeholder="e.g., Organic Roma Tomatoes") }}
+                                {{ form.name(class="form-control", value=product.name, placeholder="e.g., Organic Roma Tomatoes") }}
                                 {% if form.name.errors %}
                                     {% for error in form.name.errors %}
                                         <div class="text-danger small">{{ error }}</div>
@@ -69,7 +93,7 @@
                                 {{ form.price.label(class="form-label required") }}
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    {{ form.price(class="form-control", step="0.01") }}
+                                    {{ form.price(class="form-control", step="0.01", value=product.price) }}
                                 </div>
                                 {% if form.price.errors %}
                                     {% for error in form.price.errors %}
@@ -88,7 +112,7 @@
                             </div>
                             <div class="col-md-4">
                                 {{ form.quantity.label(class="form-label required") }}
-                                {{ form.quantity(class="form-control", min="0") }}
+                                {{ form.quantity(class="form-control", min="0", value=product.quantity) }}
                                 {% if form.quantity.errors %}
                                     {% for error in form.quantity.errors %}
                                         <div class="text-danger small">{{ error }}</div>
@@ -97,15 +121,38 @@
                             </div>
                         </div>
 
+                        <!-- Current Images Display -->
+                        {% if product.image %}
+                        <div class="mb-3">
+                            <h6 class="mb-3"><i class="fas fa-images me-2"></i>Current Images</h6>
+                            <div class="row">
+                                {% for image in product.get_all_images() %}
+                                <div class="col-md-3 mb-2">
+                                    <div class="card">
+                                        <img src="{{ url_for('static', filename='uploads/products/' + image) }}" 
+                                             class="card-img-top" style="height: 100px; object-fit: cover;" 
+                                             alt="Product image">
+                                        <div class="card-body p-2 text-center">
+                                            <small class="text-muted">
+                                                {% if loop.first %}Main{% else %}Additional{% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <!-- Product Images -->
                         <div class="mb-3">
-                            <h6 class="mb-3"><i class="fas fa-camera me-2"></i>Product Images</h6>
+                            <h6 class="mb-3"><i class="fas fa-camera me-2"></i>Update Images</h6>
                             
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    {{ form.image.label(class="form-label required") }}
+                                    {{ form.image.label(class="form-label") }}
                                     {{ form.image(class="form-control") }}
-                                    <div class="form-text">This will be your product's main display image</div>
+                                    <div class="form-text">Replace main product image (leave empty to keep current)</div>
                                     {% if form.image.errors %}
                                         {% for error in form.image.errors %}
                                             <div class="text-danger small">{{ error }}</div>
@@ -116,7 +163,7 @@
                             
                             <div class="alert alert-info">
                                 <small><i class="fas fa-info-circle me-2"></i>
-                                Supported formats: JPG, PNG, GIF. Max size: 5MB per image. High-quality images increase buyer interest!</small>
+                                Supported formats: JPG, PNG, GIF. Max size: 5MB per image. Leave fields empty to keep existing images.</small>
                             </div>
                         </div>
 
@@ -160,7 +207,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">&nbsp;</label>
                                 <div class="form-check">
-                                    {{ form.is_organic(class="form-check-input") }}
+                                    {{ form.is_organic(class="form-check-input", checked=product.is_organic) }}
                                     {{ form.is_organic.label(class="form-check-label") }}
                                     <div class="form-text">Mark as organic if certified</div>
                                 </div>
@@ -173,7 +220,7 @@
                             <h6 class="mb-3"><i class="fas fa-truck me-2"></i>Delivery Options</h6>
                             
                             <div class="form-check mb-2">
-                                {{ form.delivery_available(class="form-check-input") }}
+                                {{ form.delivery_available(class="form-check-input", checked=product.delivery_available) }}
                                 {{ form.delivery_available.label(class="form-check-label") }}
                             </div>
                             
@@ -182,7 +229,7 @@
                                 <div class="col-md-6">
                                     {{ form.delivery_radius.label(class="form-label") }}
                                     <div class="input-group">
-                                        {{ form.delivery_radius(class="form-control", min="1") }}
+                                        {{ form.delivery_radius(class="form-control", min="1", value=product.delivery_radius) }}
                                         <span class="input-group-text">km</span>
                                     </div>
                                     <div class="form-text">Maximum delivery distance from your farm</div>
@@ -197,13 +244,30 @@
                         </div>
                         {% endif %}
 
+                        <!-- Status Toggle -->
+                        <div class="mb-4">
+                            <h6 class="mb-3"><i class="fas fa-toggle-on me-2"></i>Product Status</h6>
+                            {% if form.is_active %}
+                            <div class="form-check form-switch">
+                                {{ form.is_active(class="form-check-input", role="switch", checked=product.is_active) }}
+                                {{ form.is_active.label(class="form-check-label") }}
+                                <div class="form-text">Active products are visible to buyers in the marketplace</div>
+                            </div>
+                            {% endif %}
+                        </div>
+
                         <!-- Submit Buttons -->
                         <div class="d-flex justify-content-between">
                             <a href="{{ url_for('marketplace.farmer_dashboard') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                             <div>
-                                {{ form.submit(class="btn btn-success") }}
+                                <button type="submit" name="action" value="save" class="btn btn-success me-2">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -211,58 +275,112 @@
             </div>
         </div>
 
-        <!-- Preview and Tips -->
+        <!-- Product Preview -->
         <div class="col-lg-4">
-            <!-- Preview Card -->
+            <!-- Current Product Card -->
             <div class="card mb-3">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Product Preview</h6>
+                    <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Current Product</h6>
                 </div>
                 <div class="card-body">
                     <div class="product-preview">
+                        {% if product.image %}
+                        <div class="text-center mb-3">
+                            <img src="{{ url_for('static', filename='uploads/products/' + product.image) }}" 
+                                 class="img-fluid rounded" style="max-height: 120px; object-fit: cover;" 
+                                 alt="{{ product.name }}">
+                        </div>
+                        {% else %}
                         <div class="text-center mb-3">
                             <div class="bg-light rounded d-flex align-items-center justify-content-center" 
                                  style="height: 120px;">
                                 <i class="fas fa-image fa-2x text-muted"></i>
                             </div>
-                            <small class="text-muted">Main product image will appear here</small>
                         </div>
+                        {% endif %}
                         
-                        <h6 class="fw-bold">Product Name</h6>
-                        <p class="text-muted small">Brief product description will be shown here...</p>
+                        <h6 class="fw-bold">{{ product.name }}</h6>
+                        <p class="text-muted small">{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
                         
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="h5 text-success fw-bold">$0.00</span>
-                                <small class="text-muted">/unit</small>
+                                <span class="h5 text-success fw-bold">${{ "%.2f"|format(product.price) }}</span>
+                                <small class="text-muted">/{{ product.unit }}</small>
                             </div>
-                            <span class="badge bg-secondary">Category</span>
+                            {% if product.category %}
+                            <span class="badge bg-secondary">{{ product.category.name }}</span>
+                            {% endif %}
                         </div>
                         
                         <div class="mt-2">
                             <small class="text-muted">
-                                <i class="fas fa-user me-1"></i>{{ current_user.get_full_name() }}
+                                <i class="fas fa-user me-1"></i>{{ product.seller.get_full_name() }}
                             </small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tips Card -->
+            <!-- Product Stats -->
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2 text-warning"></i>Listing Tips</h6>
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Product Stats</h6>
                 </div>
                 <div class="card-body">
-                    <ul class="list-unstyled small mb-0">
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use clear, high-quality photos</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Write detailed descriptions</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Set competitive pricing</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include harvest/expiry dates</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mention farming practices</li>
-                        <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Offer delivery when possible</li>
-                    </ul>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="text-primary">
+                                <i class="fas fa-eye fa-2x"></i>
+                            </div>
+                            <h6 class="mt-2 mb-0">0</h6>
+                            <small class="text-muted">Views</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-success">
+                                <i class="fas fa-heart fa-2x"></i>
+                            </div>
+                            <h6 class="mt-2 mb-0">0</h6>
+                            <small class="text-muted">Favorites</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-warning">
+                                <i class="fas fa-shopping-cart fa-2x"></i>
+                            </div>
+                            <h6 class="mt-2 mb-0">0</h6>
+                            <small class="text-muted">Orders</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Listed {{ product.created_at.strftime('%B %d, %Y') }}
+                    </small>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>{{ product.name }}</strong>?</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" style="display: inline;">
+                    {{ form.hidden_tag() }}
+                    <button type="submit" name="action" value="delete" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete Product
+                    </button>
+                </form>
             </div>
         </div>
     </div>

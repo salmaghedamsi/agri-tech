@@ -18,6 +18,15 @@ class User(UserMixin, db.Model):
     user_type = db.Column(db.Enum('farmer', 'investor', 'expert', 'admin'), nullable=False, default='farmer')
     profile_image = db.Column(db.String(255))
     bio = db.Column(db.Text)
+    
+    # Farmer-specific fields
+    farm_name = db.Column(db.String(100))
+    farm_location = db.Column(db.String(200))
+    farm_size = db.Column(db.Float)  # in acres
+    farm_type = db.Column(db.String(50))  # organic, conventional, etc.
+    years_experience = db.Column(db.Integer)
+    farm_description = db.Column(db.Text)
+    certifications = db.Column(db.Text)  # JSON string of certifications
     is_active = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -1,3 +1,21 @@
+# Installation Steps (Windows)
+
+1. Uninstall any existing Pillow version:
+   ```powershell
+   pip uninstall Pillow
+   ```
+
+2. Install Pillow using only the binary wheel:
+   ```powershell
+   pip install --only-binary=:all: Pillow==10.0.0
+   ```
+
+3. Install the rest of your requirements:
+   ```powershell
+   pip install -r requirements.txt
+   ```
+
+This will ensure all dependencies are installed without build errors.
 # AgriConnect - Smart Farming Platform
 
 AgriConnect is a comprehensive smart farming platform that connects farmers, investors, and agricultural experts in a unified ecosystem. The platform provides e-commerce marketplace, e-learning hub, mentoring system, investment opportunities, weather monitoring, IoT integration, and community features.

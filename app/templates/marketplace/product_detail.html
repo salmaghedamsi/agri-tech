@@ -1,116 +1,218 @@
 {% extends "base.html" %}
 
-{% block title %}{{ product.name }} - AgriConnect{% endblock %}
+{% block title %}{{ product.name }} - AgriConnect Marketplace{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <!-- Product Details -->
-    <div class="row">
-        <div class="col-md-6">
-            {% if product.image_url %}
-            <img src="{{ product.image_url }}" class="img-fluid rounded" alt="{{ product.name }}">
-            {% else %}
-            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
-                <i class="fas fa-image fa-5x text-muted"></i>
-            </div>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('marketplace.index') }}">Marketplace</a></li>
+            {% if product.category %}
+            <li class="breadcrumb-item"><a href="{{ url_for('marketplace.index', category=product.category.id) }}">{{ product.category.name }}</a></li>
             {% endif %}
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h1 class="card-title">{{ product.name }}</h1>
-                    <p class="text-muted">by {{ product.seller.get_full_name() }}</p>
-                    
-                    <div class="mb-3">
-                        <span class="h3 text-success">{{ product.price }} TND</span>
-                        <span class="badge bg-info ms-2">{{ product.unit }}</span>
-                        {% if product.is_organic %}
-                        <span class="badge bg-success ms-1">Organic</span>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h5>Description</h5>
-                        <p>{{ product.description }}</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h5>Available Quantity</h5>
-                        <p class="h5">{{ product.quantity }} {{ product.unit }}</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <h5>Rating</h5>
-                        <div class="d-flex align-items-center">
-                            <div class="me-2">
-                                {% for i in range(5) %}
-                                    {% if i < product.get_average_rating() %}
-                                    <i class="fas fa-star text-warning"></i>
-                                    {% else %}
-                                    <i class="far fa-star text-warning"></i>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            <span class="text-muted">({{ product.get_total_reviews() }} reviews)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-success btn-lg">
-                            <i class="fas fa-shopping-cart me-2"></i>Add to Cart
-                        </button>
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-heart me-2"></i>Add to Wishlist
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
 
-    <!-- Reviews Section -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-star me-2"></i>Customer Reviews
-                        <a href="{{ url_for('marketplace.add_review', product_id=product.id) }}" class="btn btn-sm btn-outline-primary float-end">
-                            Write Review
-                        </a>
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if reviews %}
-                        {% for review in reviews %}
-                        <div class="border-bottom pb-3 mb-3">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">{{ review.user.get_full_name() }}</h6>
-                                    <div class="mb-2">
-                                        {% for i in range(5) %}
-                                            {% if i < review.rating %}
-                                            <i class="fas fa-star text-warning"></i>
-                                            {% else %}
-                                            <i class="far fa-star text-warning"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    {% if review.comment %}
-                                    <p class="mb-0">{{ review.comment }}</p>
-                                    {% endif %}
-                                </div>
-                                <small class="text-muted">{{ review.created_at.strftime('%Y-%m-%d') }}</small>
-                            </div>
-                        </div>
-                        {% endfor %}
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-lg-6 mb-4">
+            <div class="product-images">
+                <!-- Main Image -->
+                <div class="main-image mb-3">
+                    {% if product.image %}
+                    <img src="{{ url_for('static', filename='uploads/products/' + product.image) }}" 
+                         class="img-fluid rounded shadow" id="mainImage"
+                         alt="{{ product.name }}" style="width: 100%; height: 400px; object-fit: cover;">
                     {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-comment-slash fa-2x text-muted mb-3"></i>
-                        <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+                    <div class="bg-light rounded shadow d-flex align-items-center justify-content-center" 
+                         style="height: 400px;">
+                        <div class="text-center">
+                            <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No image available</p>
+                        </div>
                     </div>
                     {% endif %}
+                </div>
+
+                <!-- Thumbnail Images -->
+                {% if product.get_all_images()|length > 1 %}
+                <div class="thumbnail-images">
+                    <div class="row g-2">
+                        {% for image in product.get_all_images() %}
+                        <div class="col-3">
+                            <img src="{{ url_for('static', filename='uploads/products/' + image) }}" 
+                                 class="img-thumbnail thumbnail-img cursor-pointer" 
+                                 onclick="changeMainImage(this.src)"
+                                 alt="Product image {{ loop.index }}"
+                                 style="height: 80px; width: 100%; object-fit: cover;">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-lg-6">
+            <div class="product-details">
+                <!-- Product Header -->
+                <div class="mb-3">
+                    <h1 class="h2 fw-bold">{{ product.name }}</h1>
+                    {% if product.category %}
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-tag me-1"></i>{{ product.category.name }}
+                        {% if product.is_organic %}
+                        <span class="badge bg-success ms-2">
+                            <i class="fas fa-leaf me-1"></i>Organic
+                        </span>
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                    
+                    <!-- Stock Status -->
+                    <div class="mb-2">
+                        {% if product.is_in_stock() %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i>In Stock ({{ product.quantity }} {{ product.unit }} available)
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger">
+                            <i class="fas fa-times me-1"></i>Out of Stock
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="price-section mb-4">
+                    <div class="d-flex align-items-center">
+                        <h2 class="text-success fw-bold mb-0 me-2">${{ "%.2f"|format(product.price) }}</h2>
+                        <span class="text-muted">per {{ product.unit }}</span>
+                    </div>
+                    {% if product.min_order_quantity and product.min_order_quantity > 1 %}
+                    <small class="text-muted">
+                        Minimum order: {{ product.min_order_quantity }} {{ product.unit }}{{ 's' if product.min_order_quantity != 1 else '' }}
+                    </small>
+                    {% endif %}
+                </div>
+
+                <!-- Product Info -->
+                <div class="product-info mb-4">
+                    <h5>Product Description</h5>
+                    <p class="text-muted">{{ product.description }}</p>
+                    
+                    <!-- Product Details Grid -->
+                    <div class="row g-3 mb-3">
+                        {% if product.harvest_date %}
+                        <div class="col-md-6">
+                            <div class="info-card p-3 bg-light rounded">
+                                <h6 class="mb-1"><i class="fas fa-calendar-alt text-primary me-2"></i>Harvest Date</h6>
+                                <p class="mb-0 small">{{ product.harvest_date.strftime('%B %d, %Y') }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product.expiry_date %}
+                        <div class="col-md-6">
+                            <div class="info-card p-3 bg-light rounded">
+                                <h6 class="mb-1"><i class="fas fa-clock text-warning me-2"></i>Best Before</h6>
+                                <p class="mb-0 small">{{ product.expiry_date.strftime('%B %d, %Y') }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if product.delivery_available %}
+                        <div class="col-md-6">
+                            <div class="info-card p-3 bg-light rounded">
+                                <h6 class="mb-1"><i class="fas fa-truck text-success me-2"></i>Delivery Available</h6>
+                                <p class="mb-0 small">
+                                    {% if product.delivery_radius %}
+                                    Within {{ product.delivery_radius }} km radius
+                                    {% else %}
+                                    Contact farmer for details
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-md-6">
+                            <div class="info-card p-3 bg-light rounded">
+                                <h6 class="mb-1"><i class="fas fa-box text-info me-2"></i>Packaging Unit</h6>
+                                <p class="mb-0 small">Sold per {{ product.unit }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Section -->
+                <div class="order-section mb-4">
+                    {% if current_user.is_authenticated and product.is_in_stock() and current_user.id != product.seller_id %}
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">
+                                <i class="fas fa-shopping-cart me-2"></i>Place Order
+                            </h5>
+                            <a href="mailto:{{ product.seller.email }}?subject=Interested in {{ product.name }}" 
+                               class="btn btn-success w-100">
+                                <i class="fas fa-envelope me-2"></i>Contact Farmer
+                            </a>
+                        </div>
+                    </div>
+                    {% elif current_user.is_authenticated and current_user.id == product.seller_id %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This is your product. <a href="{{ url_for('marketplace.edit_product', id=product.id) }}" class="fw-bold">Edit Product</a>
+                    </div>
+                    {% elif not current_user.is_authenticated %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <a href="{{ url_for('auth.login') }}" class="fw-bold">Login</a> to place an order
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This product is currently out of stock
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Contact Farmer -->
+                <div class="contact-section">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-user-tie me-2"></i>{{ product.seller.get_full_name() }}
+                                    </h6>
+                                    {% if product.seller.farm_name %}
+                                    <p class="text-muted mb-1 small">{{ product.seller.farm_name }}</p>
+                                    {% endif %}
+                                    {% if product.seller.farm_location %}
+                                    <p class="text-muted mb-0 small">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ product.seller.farm_location }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    {% if current_user.is_authenticated and current_user.id != product.seller_id %}
+                                    <a href="mailto:{{ product.seller.email }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-envelope me-1"></i>Contact
+                                    </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('marketplace.farmer_profile', farmer_id=product.seller.id) }}" 
+                                       class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -120,23 +222,42 @@
     {% if related_products %}
     <div class="row mt-5">
         <div class="col-12">
-            <h4>Related Products</h4>
-            <div class="row">
-                {% for related in related_products %}
-                <div class="col-md-3 mb-3">
-                    <div class="card product-card">
-                        {% if related.image_url %}
-                        <img src="{{ related.image_url }}" class="card-img-top product-image" alt="{{ related.name }}">
+            <h3 class="mb-4">Related Products</h3>
+            <div class="row g-4">
+                {% for related_product in related_products[:4] %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 product-card">
+                        {% if related_product.image %}
+                        <img src="{{ url_for('static', filename='uploads/products/' + related_product.image) }}" 
+                             class="card-img-top" style="height: 200px; object-fit: cover;"
+                             alt="{{ related_product.name }}">
                         {% else %}
-                        <div class="card-img-top product-image bg-light d-flex align-items-center justify-content-center">
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                             style="height: 200px;">
                             <i class="fas fa-image fa-2x text-muted"></i>
                         </div>
                         {% endif %}
+                        
                         <div class="card-body">
-                            <h6 class="card-title">{{ related.name }}</h6>
-                            <p class="text-success h6">{{ related.price }} TND</p>
-                            <a href="{{ url_for('marketplace.product_detail', product_id=related.id) }}" class="btn btn-sm btn-outline-primary">
-                                View Details
+                            <h6 class="card-title">{{ related_product.name }}</h6>
+                            <p class="card-text small text-muted">
+                                {{ related_product.description[:80] }}{% if related_product.description|length > 80 %}...{% endif %}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="h6 text-success fw-bold">${{ "%.2f"|format(related_product.price) }}</span>
+                                    <small class="text-muted">/{{ related_product.unit }}</small>
+                                </div>
+                                {% if related_product.is_organic %}
+                                <span class="badge bg-success"><i class="fas fa-leaf"></i></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ url_for('marketplace.product_detail', id=related_product.id) }}" 
+                               class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-eye me-1"></i>View Details
                             </a>
                         </div>
                     </div>
@@ -147,4 +268,51 @@
     </div>
     {% endif %}
 </div>
+
+<style>
+.product-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.thumbnail-img {
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.thumbnail-img:hover {
+    opacity: 0.8;
+}
+
+.info-card {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.info-card:hover {
+    background-color: #f8f9fa !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+</style>
+
+<script>
+// Change main image when thumbnail is clicked
+function changeMainImage(src) {
+    document.getElementById('mainImage').src = src;
+}
+
+// Update total price when quantity changes
+function updateTotal() {
+    const quantity = document.getElementById('orderQuantity').value;
+    const price = parseFloat('{{ product.price }}');
+    const total = quantity * price;
+    document.getElementById('totalPrice').innerText = '$' + total.toFixed(2);
+}
+</script>
 {% endblock %}

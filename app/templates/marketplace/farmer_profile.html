@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Farmer Profile - AgriConnect{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-user-edit me-2 text-success"></i>Farm Profile</h1>
+                    <p class="text-muted mb-0">Manage your farm information and profile details</p>
+                </div>
+                <a href="{{ url_for('marketplace.farmer_dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Form -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-farm me-2"></i>Farm Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Farm Basic Info -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.farm_name.label(class="form-label required") }}
+                                {{ form.farm_name(class="form-control") }}
+                                {% if form.farm_name.errors %}
+                                    {% for error in form.farm_name.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.farm_type.label(class="form-label required") }}
+                                {{ form.farm_type(class="form-select") }}
+                                {% if form.farm_type.errors %}
+                                    {% for error in form.farm_type.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                {{ form.farm_location.label(class="form-label required") }}
+                                {{ form.farm_location(class="form-control", placeholder="e.g., 123 Farm Road, Springfield, IL 62701") }}
+                                {% if form.farm_location.errors %}
+                                    {% for error in form.farm_location.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.farm_size.label(class="form-label required") }}
+                                <div class="input-group">
+                                    {{ form.farm_size(class="form-control") }}
+                                    <span class="input-group-text">acres</span>
+                                </div>
+                                {% if form.farm_size.errors %}
+                                    {% for error in form.farm_size.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form.years_experience.label(class="form-label required") }}
+                                <div class="input-group">
+                                    {{ form.years_experience(class="form-control") }}
+                                    <span class="input-group-text">years</span>
+                                </div>
+                                {% if form.years_experience.errors %}
+                                    {% for error in form.years_experience.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.phone.label(class="form-label required") }}
+                                {{ form.phone(class="form-control", placeholder="+1 (555) 123-4567") }}
+                                {% if form.phone.errors %}
+                                    {% for error in form.phone.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Farm Description -->
+                        <div class="mb-3">
+                            {{ form.farm_description.label(class="form-label required") }}
+                            {{ form.farm_description(class="form-control", rows="4", placeholder="Tell potential customers about your farm, growing practices, and what makes your products special...") }}
+                            {% if form.farm_description.errors %}
+                                {% for error in form.farm_description.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Personal Bio -->
+                        <div class="mb-3">
+                            {{ form.bio.label(class="form-label") }}
+                            {{ form.bio(class="form-control", rows="3", placeholder="Share a bit about yourself as a farmer...") }}
+                            {% if form.bio.errors %}
+                                {% for error in form.bio.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Certifications -->
+                        <div class="mb-3">
+                            {{ form.certifications.label(class="form-label") }}
+                            {{ form.certifications(class="form-control", rows="2", placeholder="List any organic certifications, sustainable farming certifications, etc...") }}
+                            {% if form.certifications.errors %}
+                                {% for error in form.certifications.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Profile Image -->
+                        <div class="mb-4">
+                            {{ form.profile_image.label(class="form-label") }}
+                            {{ form.profile_image(class="form-control") }}
+                            <div class="form-text">Upload a photo of yourself or your farm logo. Recommended size: 400x400px. Max size: 5MB.</div>
+                            {% if form.profile_image.errors %}
+                                {% for error in form.profile_image.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('marketplace.farmer_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            {{ form.submit(class="btn btn-success") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Preview -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Profile Preview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if current_user.profile_image %}
+                        <img src="{{ current_user.profile_image }}" alt="Profile" 
+                             class="rounded-circle mb-2" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" 
+                             style="width: 100px; height: 100px;">
+                            <i class="fas fa-user fa-2x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="mb-1">{{ current_user.get_full_name() }}</h5>
+                        {% if current_user.farm_name %}
+                        <p class="text-muted mb-2">{{ current_user.farm_name }}</p>
+                        {% endif %}
+                    </div>
+
+                    {% if current_user.farm_location or current_user.farm_size or current_user.years_experience %}
+                    <div class="mb-3">
+                        {% if current_user.farm_location %}
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                            <small>{{ current_user.farm_location }}</small>
+                        </div>
+                        {% endif %}
+                        {% if current_user.farm_size %}
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-expand-arrows-alt text-muted me-2"></i>
+                            <small>{{ current_user.farm_size }} acres</small>
+                        </div>
+                        {% endif %}
+                        {% if current_user.years_experience %}
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-calendar-alt text-muted me-2"></i>
+                            <small>{{ current_user.years_experience }} years experience</small>
+                        </div>
+                        {% endif %}
+                        {% if current_user.farm_type %}
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-leaf text-muted me-2"></i>
+                            <small>{{ current_user.farm_type.title() }} farming</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if current_user.bio %}
+                    <div class="mb-3">
+                        <h6 class="text-muted">About</h6>
+                        <p class="small">{{ current_user.bio }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if current_user.farm_description %}
+                    <div class="mb-3">
+                        <h6 class="text-muted">Farm Description</h6>
+                        <p class="small">{{ current_user.farm_description[:100] }}{% if current_user.farm_description|length > 100 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if current_user.certifications %}
+                    <div class="mb-3">
+                        <h6 class="text-muted">Certifications</h6>
+                        <p class="small">{{ current_user.certifications[:80] }}{% if current_user.certifications|length > 80 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-3">
+                        <a href="{{ url_for('marketplace.farmer_profile', farmer_id=current_user.id) }}" 
+                           class="btn btn-outline-primary btn-sm w-100" target="_blank">
+                            <i class="fas fa-external-link-alt me-2"></i>View Public Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2 text-warning"></i>Profile Tips</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use a clear, high-quality profile photo</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Write a detailed farm description</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Highlight your farming practices</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include certifications if applicable</li>
+                        <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Keep contact information updated</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label.required:after {
+    content: " *";
+    color: #dc3545;
+}
+</style>
+{% endblock %}
