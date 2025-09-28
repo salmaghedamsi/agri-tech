@@ -61,38 +61,15 @@ def index():
                          language=language,
                          sort_by=sort_by)
 
-@learning_bp.route('/course/<int:course_id>')
-def course_detail(course_id):
-    """Course detail page"""
-    course = Course.query.get_or_404(course_id)
-    
-    # Get course modules
-    modules = CourseModule.query.filter_by(course_id=course_id, is_published=True).order_by(CourseModule.order_index).all()
-    
-    # Check if user is enrolled
-    enrollment = None
-    if current_user.is_authenticated:
-        enrollment = CourseEnrollment.query.filter_by(
-            course_id=course_id,
-            user_id=current_user.id
-        ).first()
-
-    # Get related courses
-    related_courses = Course.query.filter(
-        Course.id != course_id,
-        Course.is_published == True
-    ).limit(4).all()
-    
-    return render_template('learning/course_detail.html',
-                         course=course,
-                         modules=modules,
-                         enrollment=enrollment,
-                         related_courses=related_courses)
-
 @learning_bp.route('/course/<int:course_id>/enroll', methods=['POST'])
 @login_required
 def enroll_course(course_id):
     """Enroll in a course"""
+    # Prevent experts from enrolling
+    if current_user.is_expert():
+        flash('Experts cannot enroll in courses.', 'error')
+        return redirect(url_for('learning.course_detail', course_id=course_id))
+    
     course = Course.query.get_or_404(course_id)
     
     # Check if already enrolled
@@ -117,21 +94,55 @@ def enroll_course(course_id):
     flash('Successfully enrolled in the course!', 'success')
     return redirect(url_for('learning.course_detail', course_id=course_id))
 
+@learning_bp.route('/course/<int:course_id>')
+def course_detail(course_id):
+    """Course detail page"""
+    course = Course.query.get_or_404(course_id)
+    
+    # Get course modules
+    modules = CourseModule.query.filter_by(course_id=course_id, is_published=True).order_by(CourseModule.order_index).all()
+    
+    # For experts, don't show enrollment info
+    enrollment = None
+    if current_user.is_authenticated and not current_user.is_expert():
+        enrollment = CourseEnrollment.query.filter_by(
+            course_id=course_id,
+            user_id=current_user.id
+        ).first()
+
+    # Get related courses
+    related_courses = Course.query.filter(
+        Course.id != course_id,
+        Course.is_published == True
+    ).limit(4).all()
+    
+    return render_template('learning/course_detail.html',
+                         course=course,
+                         modules=modules,
+                         enrollment=enrollment,
+                         related_courses=related_courses)
+
+
 @learning_bp.route('/course/<int:course_id>/learn')
 @login_required
 def learn_course(course_id):
     """Course learning interface"""
     course = Course.query.get_or_404(course_id)
     
-    # Check if user is enrolled
-    enrollment = CourseEnrollment.query.filter_by(
-        course_id=course_id,
-        user_id=current_user.id
-    ).first()
-    
-    if not enrollment:
-        flash('You must enroll in this course first.', 'error')
-        return redirect(url_for('learning.course_detail', course_id=course_id))
+    # If user is an expert, they can view without enrollment
+    if not current_user.is_expert():
+        # For non-experts, check enrollment
+        enrollment = CourseEnrollment.query.filter_by(
+            course_id=course_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not enrollment:
+            flash('You must enroll in this course first.', 'error')
+            return redirect(url_for('learning.course_detail', course_id=course_id))
+    else:
+        # For experts, don't track enrollment
+        enrollment = None
     
     # Get course modules
     modules = CourseModule.query.filter_by(course_id=course_id, is_published=True).order_by(CourseModule.order_index).all()
@@ -165,14 +176,19 @@ def complete_module(course_id, module_id):
     course = Course.query.get_or_404(course_id)
     module = CourseModule.query.get_or_404(module_id)
     
-    # Check if user is enrolled
-    enrollment = CourseEnrollment.query.filter_by(
-        course_id=course_id,
-        user_id=current_user.id
-    ).first()
-    
-    if not enrollment:
-        return jsonify({'error': 'Not enrolled in course'}), 400
+    # Experts don't need enrollment to view content
+    if not current_user.is_expert():
+        # Check if user is enrolled
+        enrollment = CourseEnrollment.query.filter_by(
+            course_id=course_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not enrollment:
+            return jsonify({'error': 'Not enrolled in course'}), 400
+    else:
+        # For experts, we don't track progress
+        return jsonify({'success': True})
     
     # Get or create progress record
     progress = CourseProgress.query.filter_by(
@@ -199,6 +215,11 @@ def complete_module(course_id, module_id):
 @login_required
 def my_courses():
     """User's enrolled courses"""
+    # Redirect experts to course management
+    if current_user.is_expert():
+        flash('Experts should use the course management interface.', 'info')
+        return redirect(url_for('learning.manage_courses'))
+        
     page = request.args.get('page', 1, type=int)
     enrollments = CourseEnrollment.query.filter_by(user_id=current_user.id).order_by(desc(CourseEnrollment.enrolled_at)).paginate(
         page=page, per_page=12, error_out=False
