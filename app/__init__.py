@@ -13,7 +13,7 @@ load_dotenv()
 # Initialize extensions
 db = SQLAlchemy()
 login_manager = LoginManager()
-migrate = Migrate()
+migrate = Migrate()  # Remove the (app, db) parameters here
 mail = Mail()
 csrf = CSRFProtect()
 
@@ -35,7 +35,7 @@ def create_app():
     # Initialize extensions with app
     db.init_app(app)
     login_manager.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db)  # Initialize migrate here with app and db
     mail.init_app(app)
     csrf.init_app(app)
     

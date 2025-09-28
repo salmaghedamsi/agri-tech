@@ -1,0 +1,178 @@
+{% extends "base.html" %} {% block title %}My Courses - AgriConnect{% endblock
+%} {% block content %}
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-graduation-cap me-2"></i>My Courses</h1>
+        <a
+          href="{{ url_for('learning.index') }}"
+          class="btn btn-outline-primary"
+        >
+          <i class="fas fa-plus me-2"></i>Browse More Courses
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses Grid -->
+  <div class="row">
+    {% for enrollment in enrollments.items %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card course-card h-100">
+        {% if enrollment.course.thumbnail_url %}
+        <img
+          src="{{ enrollment.course.thumbnail_url }}"
+          class="card-img-top course-thumbnail"
+          alt="{{ enrollment.course.title }}"
+        />
+        {% else %}
+        <div
+          class="card-img-top course-thumbnail bg-light d-flex align-items-center justify-content-center"
+        >
+          <i class="fas fa-graduation-cap fa-3x text-muted"></i>
+        </div>
+        {% endif %}
+
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ enrollment.course.title }}</h5>
+          <p class="card-text text-muted">
+            {{ enrollment.course.description[:100] }}{% if
+            enrollment.course.description|length > 100 %}...{% endif %}
+          </p>
+
+          <!-- Progress Bar -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <small class="text-muted">Progress</small>
+              <small class="text-muted"
+                >{{ "%.0f"|format(enrollment.get_progress_percentage())
+                }}%</small
+              >
+            </div>
+            <div class="progress" style="height: 6px">
+              <div
+                class="progress-bar"
+                role="progressbar"
+                style="width: {{ enrollment.get_progress_percentage() }}%"
+                aria-valuenow="{{ enrollment.get_progress_percentage() }}"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              ></div>
+            </div>
+          </div>
+
+          <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span
+                class="badge bg-{{ 'success' if enrollment.course.difficulty_level == 'beginner' else 'warning' if enrollment.course.difficulty_level == 'intermediate' else 'danger' }}"
+              >
+                {{ enrollment.course.difficulty_level.title() }}
+              </span>
+              <small class="text-muted">
+                <i class="fas fa-clock me-1"></i>{{
+                enrollment.course.duration_hours }}h
+              </small>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <small class="text-muted"
+                >by {{ enrollment.course.instructor.get_full_name() }}</small
+              >
+              <small class="text-muted">
+                <i class="fas fa-users me-1"></i>{{
+                enrollment.course.get_total_students() }}
+              </small>
+            </div>
+
+            <div class="d-flex gap-2">
+              <a
+                href="{{ url_for('learning.learn_course', course_id=enrollment.course.id) }}"
+                class="btn btn-primary btn-sm flex-fill"
+              >
+                <i class="fas fa-play me-1"></i>Continue
+              </a>
+              <a
+                href="{{ url_for('learning.course_detail', course_id=enrollment.course.id) }}"
+                class="btn btn-outline-secondary btn-sm"
+              >
+                <i class="fas fa-info-circle"></i>
+              </a>
+            </div>
+
+            {% if enrollment.is_completed %}
+            <div class="mt-2">
+              <span class="badge bg-success">
+                <i class="fas fa-check-circle me-1"></i>Completed
+              </span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <div class="text-center py-5">
+        <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+        <h3>No courses enrolled</h3>
+        <p class="text-muted">
+          Start your learning journey by enrolling in courses
+        </p>
+        <a href="{{ url_for('learning.index') }}" class="btn btn-primary">
+          <i class="fas fa-search me-2"></i>Browse Courses
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if enrollments.pages > 1 %}
+  <div class="row">
+    <div class="col-12">
+      <nav aria-label="My courses pagination">
+        <ul class="pagination justify-content-center">
+          {% if enrollments.has_prev %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('learning.my_courses', page=enrollments.prev_num) }}"
+              >Previous</a
+            >
+          </li>
+          {% endif %} {% for page_num in enrollments.iter_pages() %} {% if
+          page_num %} {% if page_num != enrollments.page %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('learning.my_courses', page=page_num) }}"
+              >{{ page_num }}</a
+            >
+          </li>
+          {% else %}
+          <li class="page-item active">
+            <span class="page-link">{{ page_num }}</span>
+          </li>
+          {% endif %} {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+          {% endif %} {% endfor %} {% if enrollments.has_next %}
+          <li class="page-item">
+            <a
+              class="page-link"
+              href="{{ url_for('learning.my_courses', page=enrollments.next_num) }}"
+              >Next</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

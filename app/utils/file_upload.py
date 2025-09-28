@@ -5,7 +5,12 @@ File upload utilities for AgriConnect
 import os
 import uuid
 from datetime import datetime
-from PIL import Image
+try:
+    from PIL import Image
+    _PIL_AVAILABLE = True
+except Exception:
+    Image = None
+    _PIL_AVAILABLE = False
 from flask import current_app
 from werkzeug.utils import secure_filename
 
@@ -54,19 +59,23 @@ def create_upload_folders():
 
 def resize_image(image_path, size, output_path=None):
     """Resize image to specified dimensions"""
+    if not _PIL_AVAILABLE:
+        current_app.logger.warning('Pillow is not installed; skipping image resizing.')
+        return None
+
     try:
         with Image.open(image_path) as img:
             # Convert to RGB if necessary
             if img.mode in ("RGBA", "P"):
                 img = img.convert("RGB")
-            
-            # Calculate aspect ratio
+
+            # Calculate aspect ratio and resize
             img.thumbnail(size, Image.Resampling.LANCZOS)
-            
+
             # Save resized image
             if output_path is None:
                 output_path = image_path
-            
+
             img.save(output_path, 'JPEG', quality=85, optimize=True)
             return output_path
     except Exception as e:

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Courses - AgriConnect{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('learning.index') }}">Learning Hub</a></li>
+                    <li class="breadcrumb-item active">Course Management</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">Manage Your Courses</h1>
+                <a href="{{ url_for('learning.create_course_management') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create New Course
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course List -->
+    <div class="row">
+        {% for course in courses.items %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                {% if course.thumbnail_url %}
+                <img src="{{ course.thumbnail_url }}" class="card-img-top course-thumbnail" alt="{{ course.title }}">
+                {% else %}
+                <div class="card-img-top course-thumbnail bg-light d-flex align-items-center justify-content-center">
+                    <i class="fas fa-graduation-cap fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text text-muted">{{ course.description[:100] }}{% if course.description|length > 100 %}...{% endif %}</p>
+                    
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <h6 class="text-primary mb-0">{{ course.modules.count() }}</h6>
+                            <small class="text-muted">Modules</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-success mb-0">{{ course.get_total_students() }}</h6>
+                            <small class="text-muted">Students</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-warning mb-0">{{ course.duration_hours }}h</h6>
+                            <small class="text-muted">Duration</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {% if course.is_published %}
+                        <span class="badge bg-success">Published</span>
+                        {% else %}
+                        <span class="badge bg-warning">Draft</span>
+                        {% endif %}
+                        
+                        <span class="badge bg-{{ 'success' if course.difficulty_level == 'beginner' else 'warning' if course.difficulty_level == 'intermediate' else 'danger' }}">
+                            {{ course.difficulty_level.title() }}
+                        </span>
+                        
+                        <span class="badge bg-info">
+                            {% if course.language == 'en' %}English
+                            {% elif course.language == 'ar' %}Arabic
+                            {% elif course.language == 'fr' %}French
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                        <a href="{{ url_for('learning.course_detail', course_id=course.id) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                        <a href="{{ url_for('learning.add_module', course_id=course.id) }}" class="btn btn-outline-success">
+                            <i class="fas fa-plus me-1"></i>Add Module
+                        </a>
+                        <a href="{{ url_for('learning.manage_modules', course_id=course.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-tasks me-1"></i>Modules
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">You haven't created any courses yet.</h5>
+                <p class="mb-4">Start sharing your knowledge by creating your first course!</p>
+                <a href="{{ url_for('learning.create_course_management') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create Your First Course
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if courses.pages > 1 %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Course navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {{ 'disabled' if not courses.has_prev }}">
+                        <a class="page-link" href="{{ url_for('learning.manage_courses', page=courses.prev_num) if courses.has_prev else '#' }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    
+                    {% for page_num in courses.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                        {% if page_num %}
+                            <li class="page-item {{ 'active' if page_num == courses.page }}">
+                                <a class="page-link" href="{{ url_for('learning.manage_courses', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <li class="page-item {{ 'disabled' if not courses.has_next }}">
+                        <a class="page-link" href="{{ url_for('learning.manage_courses', page=courses.next_num) if courses.has_next else '#' }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

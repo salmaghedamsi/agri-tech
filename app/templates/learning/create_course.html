@@ -1,0 +1,178 @@
+{% extends "base.html" %} {% block title %}Create Course - AgriConnect{%
+endblock %} {% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="fas fa-plus-circle"></i> Create New Course
+          </h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="row">
+              <div class="col-md-8">
+                <div class="mb-3">
+                  {{ form.title.label(class="form-label") }} {{
+                  form.title(class="form-control") }} {% if form.title.errors %}
+                  <div class="text-danger">
+                    {% for error in form.title.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  {{ form.price.label(class="form-label") }}
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    {{ form.price(class="form-control") }}
+                  </div>
+                  {% if form.price.errors %}
+                  <div class="text-danger">
+                    {% for error in form.price.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              {{ form.description.label(class="form-label") }} {{
+              form.description(class="form-control", rows="4") }} {% if
+              form.description.errors %}
+              <div class="text-danger">
+                {% for error in form.description.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  {{ form.duration_hours.label(class="form-label") }} {{
+                  form.duration_hours(class="form-control") }} {% if
+                  form.duration_hours.errors %}
+                  <div class="text-danger">
+                    {% for error in form.duration_hours.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  {{ form.difficulty_level.label(class="form-label") }} {{
+                  form.difficulty_level(class="form-select") }} {% if
+                  form.difficulty_level.errors %}
+                  <div class="text-danger">
+                    {% for error in form.difficulty_level.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  {{ form.language.label(class="form-label") }} {{
+                  form.language(class="form-select") }} {% if
+                  form.language.errors %}
+                  <div class="text-danger">
+                    {% for error in form.language.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              {{ form.tutorial_video_url.label(class="form-label") }} {{
+              form.tutorial_video_url(class="form-control",
+              placeholder="https://youtube.com/watch?v=...") }}
+              <div class="form-text">
+                Optional: Add a tutorial video URL (YouTube, Vimeo, etc.)
+              </div>
+              {% if form.tutorial_video_url.errors %}
+              <div class="text-danger">
+                {% for error in form.tutorial_video_url.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.thumbnail.label(class="form-label") }} {{
+                  form.thumbnail(class="form-control") }}
+                  <div class="form-text">
+                    Upload a course thumbnail (JPG, PNG, GIF)
+                  </div>
+                  {% if form.thumbnail.errors %}
+                  <div class="text-danger">
+                    {% for error in form.thumbnail.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  {{ form.document.label(class="form-label") }} {{
+                  form.document(class="form-control") }}
+                  <div class="form-text">
+                    Upload course documents (PDF, DOC, DOCX, TXT)
+                  </div>
+                  {% if form.document.errors %}
+                  <div class="text-danger">
+                    {% for error in form.document.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check">
+                {{ form.is_published(class="form-check-input") }} {{
+                form.is_published.label(class="form-check-label") }}
+                <div class="form-text">
+                  Check this to make the course visible to students immediately
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a
+                href="{{ url_for('learning.manage_courses') }}"
+                class="btn btn-secondary me-md-2"
+              >
+                <i class="fas fa-arrow-left"></i> Cancel
+              </a>
+              {{ form.submit(class="btn btn-primary") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
