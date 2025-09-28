@@ -7,7 +7,7 @@ from app.models.course import Course
 from app.models.land import Land
 from app.models.forum import ForumPost
 from app.models.weather import WeatherData, WeatherAlert
-from app.models.iot import IoTDevice, IoTData
+from app.models.iot import IoTDevice, IoTData, IoTAlert
 from app.models.investment import Investment
 from app.models.mentoring import Mentor
 from app.models.chatbot import ChatSession, ChatMessage

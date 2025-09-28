@@ -420,12 +420,215 @@ footer a:hover {
 /* Course Cards */
 .course-card {
     height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .course-thumbnail {
     height: 150px;
     object-fit: cover;
     border-radius: 8px 8px 0 0;
+}
+
+/* Course Learning Interface */
+.learning-sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+.module-list-item {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    margin-bottom: 5px;
+    border-radius: 8px;
+}
+
+.module-list-item:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: var(--primary-color);
+}
+
+.module-list-item.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.module-list-item.completed {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-left: 4px solid var(--success-color);
+}
+
+.progress-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary-color) 0deg, var(--primary-color) 0deg, #e9ecef 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.progress-ring::before {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+}
+
+.progress-text {
+    position: relative;
+    z-index: 1;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Course Detail Styles */
+.course-header-card {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: none;
+}
+
+.instructor-card {
+    border-left: 4px solid var(--primary-color);
+}
+
+.related-course-item {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.related-course-item:hover {
+    background-color: rgba(40, 167, 69, 0.05);
+    transform: translateX(5px);
+}
+
+/* Module Content Styles */
+.module-content {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+}
+
+/* Course Stats */
+.course-stat-card {
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.course-stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.course-stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Enrollment Card */
+.enrollment-card {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+}
+
+.price-display {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--success-color);
+}
+
+/* Learning Progress */
+.learning-progress {
+    background: linear-gradient(135deg, var(--primary-color), #20c997);
+    height: 8px;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Module Accordion */
+.accordion-button {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px !important;
+    margin-bottom: 5px;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+}
+
+.accordion-item {
+    border: none;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Course Management */
+.course-management-card {
+    border-left: 4px solid var(--primary-color);
+}
+
+.course-action-buttons .btn {
+    margin: 2px;
+}
+
+/* Responsive Course Layout */
+@media (max-width: 768px) {
+    .course-thumbnail {
+        height: 120px;
+    }
+    
+    .learning-sidebar {
+        position: static;
+        margin-top: 20px;
+    }
+    
+    .module-list-item {
+        font-size: 0.9rem;
+    }
+    
+    .course-stat-number {
+        font-size: 1.5rem;
+    }
 }
 
 /* Land Cards */

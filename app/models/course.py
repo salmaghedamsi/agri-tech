@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from app import db
 
@@ -13,6 +14,8 @@ class Course(db.Model):
     difficulty_level = db.Column(db.Enum('beginner', 'intermediate', 'advanced'), default='beginner')
     language = db.Column(db.String(10), default='en')  # en, ar, fr
     is_published = db.Column(db.Boolean, default=False)
+    document_path = db.Column(db.String(500))  # Path to uploaded documents
+    tutorial_video_url = db.Column(db.String(500))  # URL to tutorial videos
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -43,12 +46,16 @@ class CourseModule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
-    content = db.Column(db.Text)  # Video URL, text content, etc.
-    content_type = db.Column(db.Enum('video', 'text', 'quiz', 'assignment'), default='video')
+    content = db.Column(db.Text)  # Quiz/assignment content, or text content
+    content_type = db.Column(db.Enum('video', 'text', 'quiz', 'assignment', 'document', 'video_plus_doc'), default='video')
+    video_url = db.Column(db.String(500))  # URL for video content
+    document_path = db.Column(db.String(500))  # Path to uploaded documents
     duration_minutes = db.Column(db.Integer, default=0)
     order_index = db.Column(db.Integer, default=0)
+    is_required = db.Column(db.Boolean, default=True)  # Whether module completion is required
     is_published = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Foreign keys
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
