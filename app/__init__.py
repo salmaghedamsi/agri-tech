@@ -7,6 +7,7 @@ from flask_wtf.csrf import CSRFProtect
 import os
 from dotenv import load_dotenv
 
+
 # Load environment variables
 load_dotenv()
 
@@ -61,6 +62,7 @@ def create_app():
     from app.routes.community import community_bp
     from app.routes.admin import admin_bp
     from app.routes.api import api_bp
+    from app.routes.grant_routes import grant_bp
     
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
@@ -72,6 +74,7 @@ def create_app():
     app.register_blueprint(community_bp, url_prefix='/community')
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(grant_bp)
     
     # Root route
     @app.route('/')

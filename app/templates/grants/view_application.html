@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h2 class="mb-0">👁️ Détails de la Demande #{{ application.application_id }}</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Application Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Informations de base</h5>
+                            <p><strong>Type de subvention:</strong><br>
+                                {% if application.grant_type == 'equipment' %}🛠️ Équipement Agricole
+                                {% elif application.grant_type == 'seeds' %}🌱 Semences et Plants
+                                {% elif application.grant_type == 'infrastructure' %}🏗️ Infrastructure
+                                {% elif application.grant_type == 'training' %}📚 Formation
+                                {% else %}❔ {{ application.grant_type }}{% endif %}
+                            </p>
+                            <p><strong>Montant demandé:</strong><br>€{{ "%.2f"|format(application.amount_requested) }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Statut et dates</h5>
+                            <p><strong>Statut:</strong><br>
+                                <span
+                                    class="badge bg-{% if application.status == 'Approved' %}success{% elif application.status == 'Rejected' %}danger{% else %}warning{% endif %}">
+                                    {% if application.status == 'Submitted' %}Soumis
+                                    {% elif application.status == 'Under Review' %}En Revue
+                                    {% elif application.status == 'Approved' %}Approuvé
+                                    {% elif application.status == 'Rejected' %}Rejeté
+                                    {% else %}{{ application.status }}{% endif %}
+                                </span>
+                            </p>
+                            <p><strong>Soumis le:</strong><br>{{ application.submission_date.strftime('%d/%m/%Y à
+                                %H:%M') }}</p>
+                            <p><strong>Last edit:</strong><br>{{ application.last_updated.strftime('%d/%m/%Y
+                                à %H:%M') }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Purpose -->
+                    <div class="mb-4">
+                        <h5>Objectif de la subvention</h5>
+                        <div class="border p-3 bg-light rounded">
+                            {{ application.purpose|replace('\n', '<br>')|safe }}
+                        </div>
+                    </div>
+
+                    <!-- Documents -->
+                    {% if application.documents %}
+                    <div class="mb-4">
+                        <h5>Documents associés</h5>
+                        <div class="list-group">
+                            {% for doc in application.documents %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i
+                                        class="fas fa-file-{{ 'pdf' if doc.file_type == 'pdf' else 'word' if doc.file_type in ['doc', 'docx'] else 'image' }} me-2"></i>
+                                    {{ doc.filename }}
+                                </div>
+                                <div>
+                                    <small class="text-muted me-3">{{ doc.upload_date.strftime('%d/%m/%Y') }}</small>
+                                    <a href="{{ url_for('grant.download_file', application_id=application.application_id, filename=doc.filename) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        📥 Upload
+                                    </a>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <strong>No document:</strong> No document n'a été associé à cette demande.
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('grant.grants_dashboard') }}" class="btn btn-outline-secondary me-md-2">
+                            ↩️ Back to Dashboard
+                        </a>
+                        {% if application.status == 'Submitted' %}
+                        <a href="{{ url_for('grant.edit_application', application_id=application.application_id) }}"
+                            class="btn btn-primary me-md-2">
+                            ✏️ Edit
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

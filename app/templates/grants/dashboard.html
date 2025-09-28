@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>💰 My Grant Applications</h1>
+        <a href="{{ url_for('grant.apply_grant') }}" class="btn btn-success btn-lg">
+            ➕ New Application
+        </a>
+    </div>
+
+    {% if applications %}
+    <div class="row">
+        {% for app in applications %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Application #{{ app.application_id[:8] }}...</h5>
+                    <span
+                        class="badge bg-{% if app.status == 'Approved' %}success{% elif app.status == 'Rejected' %}danger{% else %}warning{% endif %}">
+                        {% if app.status == 'Submitted' %}Submitted
+                        {% elif app.status == 'Under Review' %}Under Review
+                        {% elif app.status == 'Approved' %}Approved
+                        {% elif app.status == 'Rejected' %}Rejected
+                        {% else %}{{ app.status }}{% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p><strong>Type:</strong>
+                        {% if app.grant_type == 'equipment' %}🛠️ Equipment
+                        {% elif app.grant_type == 'seeds' %}🌱 Seeds
+                        {% elif app.grant_type == 'infrastructure' %}🏗️ Infrastructure
+                        {% elif app.grant_type == 'training' %}📚 Training
+                        {% else %}❔ {{ app.grant_type }}{% endif %}
+                    </p>
+                    <p><strong>Amount:</strong> €{{ "%.2f"|format(app.amount_requested) }}</p>
+                    <p><strong>Submitted:</strong> {{ app.submission_date.strftime('%d/%m/%Y at %H:%M') }}</p>
+                    <p><strong>Purpose:</strong> {{ app.purpose[:100] }}{% if app.purpose|length > 100 %}...{% endif %}
+                    </p>
+
+                    <!-- Documents Info -->
+                    {% if app.documents %}
+                    <p><strong>Documents:</strong>
+                        {% for doc in app.documents %}
+                        <span class="badge bg-info me-1">
+                            <i
+                                class="fas fa-file-{{ 'pdf' if doc.file_type == 'pdf' else 'word' if doc.file_type in ['doc', 'docx'] else 'image' }} me-1"></i>
+                            {{ doc.filename }}
+                        </span>
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <!-- ACTION BUTTONS -->
+                    <div class="btn-group w-100" role="group">
+                        {% if app.status == 'Submitted' %}
+                        <a href="{{ url_for('grant.edit_application', application_id=app.application_id) }}"
+                            class="btn btn-outline-primary btn-sm">
+                            ✏️ Edit
+                        </a>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#withdrawModal{{ app.id }}">
+                            ❌ Delete
+                        </button>
+                        {% else %}
+                        <button class="btn btn-outline-secondary btn-sm" disabled>
+                            🔒 Actions unavailable
+                        </button>
+                        {% endif %}
+                        <a href="{{ url_for('grant.view_application', application_id=app.application_id) }}"
+                            class="btn btn-outline-info btn-sm">
+                            👁️ Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Withdraw Confirmation Modal -->
+            <div class="modal fade" id="withdrawModal{{ app.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Withdrawal</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to withdraw application <strong>#{{ app.application_id[:8]
+                                    }}...</strong>?</p>
+                            <p class="text-danger"><small>This action cannot be undone.</small></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <a href="{{ url_for('grant.withdraw_application', application_id=app.application_id) }}"
+                                class="btn btn-danger">Confirm Withdrawal</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h4>No applications yet</h4>
+        <p>You haven't submitted any grant applications yet.</p>
+        <a href="{{ url_for('grant.apply_grant') }}" class="btn btn-success">Submit Your First Application</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

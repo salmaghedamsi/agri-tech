@@ -8,3 +8,4 @@ from .iot import IoTDevice, IoTData, IoTAlert
 from .mentoring import Mentor, MentoringSession, MentoringRequest
 from .investment import Investment, InvestmentProposal
 from .chatbot import ChatSession, ChatMessage
+from .grant import GrantApplication, ApplicationDocument
