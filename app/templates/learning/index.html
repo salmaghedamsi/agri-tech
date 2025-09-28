@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h1><i class="fas fa-graduation-cap me-2"></i>Learning Hub</h1>
                 {% if current_user.is_expert() %}
-                <a href="{{ url_for('learning.create_course') }}" class="btn btn-success">
+                <a href="{{ url_for('learning.create_course_management') }}" class="btn btn-success">
                     <i class="fas fa-plus me-2"></i>Create Course
                 </a>
                 {% endif %}
@@ -48,7 +48,6 @@
                                 <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest</option>
                                 <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
                                 <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-                                <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
                             </select>
                         </div>
                         <div class="col-md-2">

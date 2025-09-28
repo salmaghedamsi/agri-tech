@@ -1,0 +1,264 @@
+{% extends "base.html" %} {% block title %}Add Module - {{ course.title }} -
+AgriConnect{% endblock %} {% block content %}
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('learning.index') }}">Learning Hub</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{{ url_for('learning.manage_courses') }}"
+              >Course Management</a
+            >
+          </li>
+          <li class="breadcrumb-item">
+            <a
+              href="{{ url_for('learning.course_detail', course_id=course.id) }}"
+              >{{ course.title }}</a
+            >
+          </li>
+          <li class="breadcrumb-item active">Add Module</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-plus me-2"></i>Add New Module to "{{ course.title
+            }}"
+          </h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="row">
+              <div class="col-md-8">
+                <div class="mb-3">
+                  {{ form.title.label(class="form-label") }} {{
+                  form.title(class="form-control") }} {% if form.title.errors %}
+                  <div class="text-danger">
+                    {% for error in form.title.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  {{ form.content_type.label(class="form-label") }} {{
+                  form.content_type(class="form-select") }} {% if
+                  form.content_type.errors %}
+                  <div class="text-danger">
+                    {% for error in form.content_type.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              {{ form.description.label(class="form-label") }} {{
+              form.description(class="form-control", rows="3") }} {% if
+              form.description.errors %}
+              <div class="text-danger">
+                {% for error in form.description.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              {{ form.content.label(class="form-label") }}
+              <div class="mb-2">
+                <small class="text-muted">
+                  <i class="fas fa-info-circle me-1"></i>
+                  <span id="content-help">
+                    For video content, enter the embed URL. For text content,
+                    enter the text directly. For quizzes and assignments,
+                    provide the instructions.
+                  </span>
+                </small>
+              </div>
+              {{ form.content(class="form-control", rows="6") }} {% if
+              form.content.errors %}
+              <div class="text-danger">
+                {% for error in form.content.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  {{ form.duration_minutes.label(class="form-label") }} {{
+                  form.duration_minutes(class="form-control") }} {% if
+                  form.duration_minutes.errors %}
+                  <div class="text-danger">
+                    {% for error in form.duration_minutes.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  {{ form.order_index.label(class="form-label") }} {{
+                  form.order_index(class="form-control") }} {% if
+                  form.order_index.errors %}
+                  <div class="text-danger">
+                    {% for error in form.order_index.errors %}
+                    <small>{{ error }}</small>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <div class="form-check mt-4">
+                    {{ form.is_published(class="form-check-input") }} {{
+                    form.is_published.label(class="form-check-label") }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <a
+                href="{{ url_for('learning.course_detail', course_id=course.id) }}"
+                class="btn btn-secondary"
+              >
+                <i class="fas fa-arrow-left me-1"></i>Back to Course
+              </a>
+              <div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save me-1"></i>Add Module
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Course Info -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="fas fa-info-circle me-2"></i>Course Information
+          </h6>
+        </div>
+        <div class="card-body">
+          <h6>{{ course.title }}</h6>
+          <p class="text-muted small">
+            {{ course.description[:100] }}{% if course.description|length > 100
+            %}...{% endif %}
+          </p>
+
+          <div class="row text-center">
+            <div class="col-6">
+              <h6 class="text-primary">{{ course.modules.count() }}</h6>
+              <small class="text-muted">Modules</small>
+            </div>
+            <div class="col-6">
+              <h6 class="text-success">{{ course.get_total_students() }}</h6>
+              <small class="text-muted">Students</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Type Help -->
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="fas fa-question-circle me-2"></i>Content Types
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <h6 class="text-primary">
+              <i class="fas fa-play-circle me-1"></i>Video
+            </h6>
+            <small class="text-muted"
+              >Enter the embed URL (YouTube, Vimeo, etc.)</small
+            >
+          </div>
+          <div class="mb-3">
+            <h6 class="text-info"><i class="fas fa-file-text me-1"></i>Text</h6>
+            <small class="text-muted">Enter the text content directly</small>
+          </div>
+          <div class="mb-3">
+            <h6 class="text-warning">
+              <i class="fas fa-question-circle me-1"></i>Quiz
+            </h6>
+            <small class="text-muted"
+              >Enter quiz questions and instructions</small
+            >
+          </div>
+          <div class="mb-3">
+            <h6 class="text-success">
+              <i class="fas fa-tasks me-1"></i>Assignment
+            </h6>
+            <small class="text-muted"
+              >Enter assignment instructions and requirements</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const contentTypeSelect = document.getElementById("content_type");
+    const contentHelp = document.getElementById("content-help");
+    const contentTextarea = document.querySelector('textarea[name="content"]');
+
+    const helpTexts = {
+      video:
+        "For video content, enter the embed URL (e.g., https://www.youtube.com/embed/VIDEO_ID)",
+      text: "For text content, enter the text directly. You can use HTML formatting.",
+      quiz: "For quiz content, enter the quiz questions and instructions.",
+      assignment:
+        "For assignment content, enter the assignment instructions and requirements.",
+    };
+
+    function updateHelpText() {
+      const selectedType = contentTypeSelect.value;
+      contentHelp.textContent = helpTexts[selectedType] || helpTexts["text"];
+
+      // Update placeholder
+      const placeholders = {
+        video: "https://www.youtube.com/embed/VIDEO_ID",
+        text: "Enter your text content here...",
+        quiz: "Enter quiz questions and instructions...",
+        assignment: "Enter assignment instructions...",
+      };
+      contentTextarea.placeholder =
+        placeholders[selectedType] || placeholders["text"];
+    }
+
+    contentTypeSelect.addEventListener("change", updateHelpText);
+    updateHelpText(); // Initialize
+  });
+</script>
+{% endblock %}

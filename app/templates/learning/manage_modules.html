@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Modules - {{ course.title }} - AgriConnect{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('learning.index') }}">Learning Hub</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('learning.manage_courses') }}">Course Management</a></li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('learning.course_detail', course_id=course.id) }}">{{ course.title }}</a>
+                    </li>
+                    <li class="breadcrumb-item active">Manage Modules</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">Manage Course Modules</h1>
+                <a href="{{ url_for('learning.add_module', course_id=course.id) }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Module
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Module List -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Course Modules
+                    </h5>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="reorderModulesBtn">
+                        <i class="fas fa-sort me-1"></i>Reorder
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    {% if modules %}
+                    <div class="list-group list-group-flush" id="modulesList">
+                        {% for module in modules %}
+                        <div class="list-group-item" data-module-id="{{ module.id }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <span class="badge bg-secondary">{{ loop.index }}</span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">{{ module.title }}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>{{ module.duration_minutes }} min
+                                            <span class="mx-2">•</span>
+                                            <span class="badge bg-{{ 'primary' if module.content_type == 'video' else 'info' if module.content_type == 'text' else 'warning' if module.content_type == 'quiz' else 'success' if module.content_type == 'assignment' else 'secondary' }}">
+                                                {{ module.content_type.title() }}
+                                            </span>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('learning.edit_module', course_id=course.id, module_id=module.id) }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" onclick="deleteModule({{ module.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No modules available yet.</p>
+                        <a href="{{ url_for('learning.add_module', course_id=course.id) }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add First Module
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Info Sidebar -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Course Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if course.thumbnail_url %}
+                    <img src="{{ course.thumbnail_url }}" class="img-fluid rounded mb-3" alt="{{ course.title }}">
+                    {% endif %}
+                    
+                    <h5>{{ course.title }}</h5>
+                    <p class="text-muted">{{ course.description[:200] }}{% if course.description|length > 200 %}...{% endif %}</p>
+                    
+                    <hr>
+                    
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <h6 class="text-primary mb-0">{{ modules|length }}</h6>
+                            <small class="text-muted">Modules</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-success mb-0">{{ course.get_total_students() }}</h6>
+                            <small class="text-muted">Students</small>
+                        </div>
+                        <div class="col-4">
+                            <h6 class="text-warning mb-0">{{ course.duration_hours }}h</h6>
+                            <small class="text-muted">Duration</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('learning.course_detail', course_id=course.id) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-eye me-2"></i>View Course Page
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Module Management Tips</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-primary">
+                            <i class="fas fa-sort me-2"></i>Module Order
+                        </h6>
+                        <small class="text-muted d-block">Click 'Reorder' to drag and drop modules into your preferred sequence.</small>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-success">
+                            <i class="fas fa-check-circle me-2"></i>Content Types
+                        </h6>
+                        <small class="text-muted d-block">Mix different content types (videos, text, quizzes) for better engagement.</small>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="text-info">
+                            <i class="fas fa-clock me-2"></i>Duration
+                        </h6>
+                        <small class="text-muted d-block">Keep modules between 10-30 minutes for optimal learning.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+// Module deletion
+function deleteModule(moduleId) {
+    if (confirm('Are you sure you want to delete this module? This action cannot be undone.')) {
+        fetch(`{{ url_for('learning.delete_module', course_id=course.id) }}/${moduleId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error deleting module: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting module. Please try again.');
+        });
+    }
+}
+
+// Module reordering
+document.getElementById('reorderModulesBtn')?.addEventListener('click', function() {
+    const modulesList = document.getElementById('modulesList');
+    const isReordering = modulesList.classList.toggle('reordering');
+    this.innerHTML = isReordering ? 
+        '<i class="fas fa-save me-1"></i>Save Order' : 
+        '<i class="fas fa-sort me-1"></i>Reorder';
+    
+    if (isReordering) {
+        // Add visual cues for dragging
+        modulesList.classList.add('cursor-move');
+        document.querySelectorAll('.list-group-item').forEach(item => {
+            item.classList.add('draggable');
+        });
+        
+        // Enable drag and drop
+        new Sortable(modulesList, {
+            animation: 150,
+            ghostClass: 'bg-light',
+            onEnd: function() {
+                // Get new order when reordering is finished
+                const modules = Array.from(modulesList.children).map((item, index) => ({
+                    id: item.dataset.moduleId,
+                    order: index
+                }));
+                
+                // Save new order when button is clicked again
+                document.getElementById('reorderModulesBtn').onclick = function() {
+                    fetch('{{ url_for('learning.reorder_modules', course_id=course.id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ modules: modules })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            alert('Error saving module order: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error saving module order. Please try again.');
+                    });
+                };
+            }
+        });
+    } else {
+        // Remove visual cues
+        modulesList.classList.remove('cursor-move');
+        document.querySelectorAll('.list-group-item').forEach(item => {
+            item.classList.remove('draggable');
+        });
+    }
+});
+</script>
+
+<style>
+.cursor-move {
+    cursor: move;
+}
+.draggable {
+    transition: background-color 0.3s;
+}
+.draggable:hover {
+    background-color: #f8f9fa;
+}
+.sortable-ghost {
+    opacity: 0.5;
+}
+</style>
+{% endblock %}
