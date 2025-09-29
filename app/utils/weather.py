@@ -44,6 +44,8 @@ def get_weather_data(location):
             db.session.add(weather_data)
             db.session.commit()
             
+            check_weather_alerts(location)
+            
             return weather_data
         else:
             return create_mock_weather_data(location)
@@ -136,6 +138,8 @@ def create_mock_weather_data(location):
     
     db.session.add(weather_data)
     db.session.commit()
+    
+    check_weather_alerts(location)
     
     return weather_data
 

@@ -125,3 +125,9 @@ def stats():
         }
     
     return jsonify(stats)
+
+
+@dashboard.route('/alerte')
+def alerte():
+    return render_template('alerte.html')  # vérifier le chemin exact dans templates/
+

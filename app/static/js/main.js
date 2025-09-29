@@ -8,6 +8,18 @@ let chatSessionId = null;
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
+document.addEventListener("DOMContentLoaded", () => {
+    const bouton = document.querySelector('a[href="{{ url_for("weather.alerts") }}"]');
+    if (bouton) {
+        bouton.addEventListener("click", (e) => {
+            e.preventDefault(); // empêche la redirection immédiate
+            alert("Alerte !");
+            // Si tu veux rediriger après l'alerte, décommente la ligne suivante :
+            // window.location.href = bouton.href;
+        });
+    }
+});
+
 
 function initializeApp() {
     // Initialize tooltips

@@ -1,5 +1,6 @@
 from datetime import datetime
 from app import db
+from app.models.user import User
 
 class WeatherData(db.Model):
     __tablename__ = 'weather_data'
@@ -95,3 +96,24 @@ class WeatherAlert(db.Model):
     
     def __repr__(self):
         return f'<WeatherAlert {self.title} - {self.severity}>'
+    
+def check_weather_alerts(weather):
+    """Détecte les alertes météo à partir des données météo"""
+    alerts = []
+
+    frost_threshold = 3.0
+    heat_threshold = 40.0
+    wind_threshold = 50.0
+    precipitation_threshold = 20.0
+
+    if weather.temperature < frost_threshold:
+        alerts.append("⚠️ Frost risk warning")
+    if weather.temperature > heat_threshold:
+        alerts.append("🔥 Heatwave warning")
+    if weather.wind_speed > wind_threshold:
+        alerts.append("💨 Strong wind warning")
+    if weather.precipitation > precipitation_threshold:
+        alerts.append("🌧️ Heavy rain warning")
+
+    return alerts
+
