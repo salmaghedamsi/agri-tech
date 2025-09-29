@@ -167,16 +167,17 @@ test.db
 dev.db
 prod.db
 
-# Database scripts and migrations
+# Database scripts (exclude these)
 db_scripts/
 database_scripts/
-migrations/
-alembic/
 *_migration.sql
-*_migration.py
 migrate_*.py
 migration_*.py
 *_migrate.py
+
+# Keep migrations/ folder for Flask-Migrate
+# migrations/ should be tracked in git
+# Only exclude temporary migration scripts
 create_db.py
 init_db.py
 setup_db.py
