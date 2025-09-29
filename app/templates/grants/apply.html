@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">📝 Grant Application</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <!-- Type de subvention -->
+                        <div class="mb-3">
+                            {{ form.grant_type.label(class="form-label fw-bold") }}
+                            {{ form.grant_type(class="form-select form-select-lg") }}
+                            {% for error in form.grant_type.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Montant demandé -->
+                        <div class="mb-3">
+                            {{ form.amount_requested.label(class="form-label fw-bold") }}
+                            <div class="input-group">
+                                <span class="input-group-text">€</span>
+                                {{ form.amount_requested(class="form-control form-control-lg", placeholder="5000") }}
+                            </div>
+                            {% for error in form.amount_requested.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Objectif -->
+                        <div class="mb-3">
+                            {{ form.purpose.label(class="form-label fw-bold") }}
+                            {{ form.purpose(class="form-control", rows="5", placeholder="Describe in detail how you will
+                            use this grant for your farm...") }}
+                            <div class="form-text">Minimum 50 caractères, maximum 1000 caractères</div>
+                            {% for error in form.purpose.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Documents -->
+                        <div class="mb-4">
+                            {{ form.documents.label(class="form-label fw-bold") }}
+                            {{ form.documents(class="form-control") }}
+                            <div class="form-text">Formats acceptés: PDF, Word (doc/docx), JPG, PNG (max 16MB)</div>
+                            {% for error in form.documents.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('grant.grants_dashboard') }}" class="btn btn-outline-secondary me-md-2">
+                                ↩️ Back
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                📨 Apply
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block extra_js %}
+<script>
+    // Loading states for forms
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('form');
+
+        forms.forEach(form => {
+            form.addEventListener('submit', function () {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Traitement en cours...';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
