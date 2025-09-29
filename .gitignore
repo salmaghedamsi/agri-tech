@@ -209,6 +209,12 @@ database_shell.py
 query_tool.py
 db_utils.py
 
+# Scripts directory (database fixes, migrations, etc.)
+scripts/
+fix_*.py
+repair_*.py
+update_*.py
+
 # Uploaded files
 app/static/uploads/
 uploads/
@@ -277,6 +283,10 @@ test_data.py
 dummy_data.py
 populate_*.py
 seed_*.py
+test_*.py
+test_enrollment.py
+test_course.py
+test_migration.py
 
 # Log files
 *.log
