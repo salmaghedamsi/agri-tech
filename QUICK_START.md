@@ -1,22 +1,41 @@
 # AgriConnect - Quick Start Guide
 
-## 🚀 Getting Started
+## 🚀 New Developer Setup (First Time)
 
-### Test User Credentials
+### 1. Database Setup
+```bash
+python setup_database.py
+```
+This will:
+- ✅ Create database with proper schema
+- ✅ Run all migrations
+- ✅ Create sample data (optional)
+
+### 2. Start Application
+```bash
+python run.py
+```
+
+### 3. Access Application
+- Open browser: http://localhost:5000
+- Login with test credentials below
+
+## 📋 Test User Credentials
 - **Email**: rima@gmail.com
 - **Password**: rima00
 - **User Type**: Farmer
 
-### Running the Application
+## 🔄 For Team Members (After git pull)
+```bash
+flask db upgrade  # Apply new database changes
+python run.py     # Start application
+```
 
-1. **Start the application**:
-   ```bash
-   python run.py
-   ```
-
-2. **Access the application**:
-   - Open your browser and go to: http://localhost:5000
-   - Login with the test credentials above
+## ⚠️ Database Issues?
+If you get "column doesn't exist" errors:
+```bash
+flask db upgrade
+```
 
 ### Alternative Startup (with sample data)
 ```bash
