@@ -55,6 +55,26 @@
                             <i class="fas fa-chart-line me-1"></i>Investment
                         </a>
                     </li>
+                    <!-- IoT Monitoring -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="iotDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-microchip me-1"></i>IoT Monitor
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('iot.dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('iot.monitoring') }}">
+                                <i class="fas fa-tv me-2"></i>Live Monitor
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('iot.devices') }}">
+                                <i class="fas fa-microchip me-2"></i>Devices
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('iot.alerts') }}">
+                                <i class="fas fa-bell me-2"></i>Alerts
+                            </a></li>
+                        </ul>
+                    </li>
                     <!-- GRANTS LINK ADDED HERE -->
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('grant.grants_dashboard') }}">

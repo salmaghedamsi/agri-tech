@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+{% block title %}Smart Farm Monitoring - Verdiva{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verdiva-dashboard {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .monitoring-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease;
+    }
+    
+    .monitoring-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .sensor-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2e8b57;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .sensor-label {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .sensor-unit {
+        font-size: 1.2rem;
+        color: #888;
+        margin-left: 5px;
+    }
+    
+    .control-button {
+        padding: 15px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-pump-on {
+        background: linear-gradient(45deg, #4CAF50, #45a049);
+        color: white;
+    }
+    
+    .btn-pump-on:hover {
+        background: linear-gradient(45deg, #45a049, #4CAF50);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+    
+    .btn-pump-off {
+        background: linear-gradient(45deg, #f44336, #d32f2f);
+        color: white;
+    }
+    
+    .btn-pump-off:hover {
+        background: linear-gradient(45deg, #d32f2f, #f44336);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+    }
+    
+    .status-online {
+        background: #4CAF50;
+    }
+    
+    .status-offline {
+        background: #f44336;
+        animation: none;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+    
+    .verdiva-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+    }
+    
+    .verdiva-title {
+        font-size: 3rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: 10px;
+    }
+    
+    .verdiva-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+    
+    .last-updated {
+        font-size: 0.9rem;
+        color: #888;
+        text-align: center;
+        margin-top: 10px;
+    }
+    
+    .device-status {
+        background: rgba(46, 139, 87, 0.1);
+        border-left: 4px solid #2e8b57;
+        padding: 10px 15px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verdiva-dashboard">
+    <div class="container">
+        <div class="verdiva-header">
+            <h1 class="verdiva-title">🌱 Verdiva Smart Farming</h1>
+            <p class="verdiva-subtitle">Real-time Farm Monitoring & Control System</p>
+        </div>
+        
+        <div class="row">
+            <!-- Live Sensor Data -->
+            <div class="col-lg-8">
+                <div class="monitoring-card">
+                    <h2 style="color: #2e8b57; margin-bottom: 25px;">
+                        <i class="fas fa-thermometer-half"></i> Live Environmental Data
+                    </h2>
+                    
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="sensor-label">Temperature</div>
+                            <div class="sensor-value" id="temp-value">
+                                {{ latest_data.get('temp', 0) }}<span class="sensor-unit">°C</span>
+                            </div>
+                            <div class="device-status">
+                                <span class="status-indicator {{ 'status-online' if temp_device and temp_device.is_online else 'status-offline' }}"></span>
+                                {{ 'Online' if temp_device and temp_device.is_online else 'Offline' }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 text-center">
+                            <div class="sensor-label">Humidity</div>
+                            <div class="sensor-value" id="humidity-value">
+                                {{ latest_data.get('humidity', 0) }}<span class="sensor-unit">%</span>
+                            </div>
+                            <div class="device-status">
+                                <span class="status-indicator {{ 'status-online' if humidity_device and humidity_device.is_online else 'status-offline' }}"></span>
+                                {{ 'Online' if humidity_device and humidity_device.is_online else 'Offline' }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 text-center">
+                            <div class="sensor-label">Soil Moisture</div>
+                            <div class="sensor-value" id="soil-value">
+                                {{ latest_data.get('soil', 0) }}<span class="sensor-unit">units</span>
+                            </div>
+                            <div class="device-status">
+                                <span class="status-indicator {{ 'status-online' if soil_device and soil_device.is_online else 'status-offline' }}"></span>
+                                {{ 'Online' if soil_device and soil_device.is_online else 'Offline' }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="last-updated" id="last-updated">
+                        Last updated: <span id="update-time">Just now</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Control Panel -->
+            <div class="col-lg-4">
+                <div class="monitoring-card">
+                    <h2 style="color: #2e8b57; margin-bottom: 25px;">
+                        <i class="fas fa-cogs"></i> Manual Control
+                    </h2>
+                    
+                    <div class="text-center">
+                        <p style="margin-bottom: 20px; color: #666;">
+                            Control your irrigation system remotely
+                        </p>
+                        
+                        {% if actuators %}
+                            {% for actuator in actuators %}
+                                <div style="margin-bottom: 20px;">
+                                    <h5>{{ actuator.name }}</h5>
+                                    <button onclick="sendCommand('pump_on', '{{ actuator.id }}')" 
+                                            class="control-button btn-pump-on">
+                                        <i class="fas fa-power-off"></i> Turn ON
+                                    </button>
+                                    <button onclick="sendCommand('pump_off', '{{ actuator.id }}')" 
+                                            class="control-button btn-pump-off">
+                                        <i class="fas fa-stop"></i> Turn OFF
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="margin-bottom: 20px;">
+                                <h5>Water Pump</h5>
+                                <button onclick="sendCommand('pump_on')" 
+                                        class="control-button btn-pump-on">
+                                    <i class="fas fa-power-off"></i> Turn Pump ON
+                                </button>
+                                <button onclick="sendCommand('pump_off')" 
+                                        class="control-button btn-pump-off">
+                                    <i class="fas fa-stop"></i> Turn Pump OFF
+                                </button>
+                            </div>
+                        {% endif %}
+                        
+                        <div style="margin-top: 20px; padding: 10px; background: rgba(46, 139, 87, 0.1); border-radius: 8px;">
+                            <small style="color: #666;">
+                                <i class="fas fa-info-circle"></i> 
+                                Commands are sent to your IoT devices in real-time
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Device Status Overview -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="monitoring-card">
+                    <h2 style="color: #2e8b57; margin-bottom: 20px;">
+                        <i class="fas fa-microchip"></i> Device Status Overview
+                    </h2>
+                    
+                    {% if temp_device or humidity_device or soil_device or actuators %}
+                        <div class="row">
+                            {% if temp_device %}
+                                <div class="col-md-3">
+                                    <div class="device-card" style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+                                        <h6>{{ temp_device.name }}</h6>
+                                        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                                            Location: {{ temp_device.location }}
+                                        </p>
+                                        <p style="margin: 0; font-size: 0.9rem;">
+                                            Status: 
+                                            <span class="badge {{ 'badge-success' if temp_device.is_online else 'badge-danger' }}">
+                                                {{ 'Online' if temp_device.is_online else 'Offline' }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if humidity_device %}
+                                <div class="col-md-3">
+                                    <div class="device-card" style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+                                        <h6>{{ humidity_device.name }}</h6>
+                                        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                                            Location: {{ humidity_device.location }}
+                                        </p>
+                                        <p style="margin: 0; font-size: 0.9rem;">
+                                            Status: 
+                                            <span class="badge {{ 'badge-success' if humidity_device.is_online else 'badge-danger' }}">
+                                                {{ 'Online' if humidity_device.is_online else 'Offline' }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if soil_device %}
+                                <div class="col-md-3">
+                                    <div class="device-card" style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+                                        <h6>{{ soil_device.name }}</h6>
+                                        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                                            Location: {{ soil_device.location }}
+                                        </p>
+                                        <p style="margin: 0; font-size: 0.9rem;">
+                                            Status: 
+                                            <span class="badge {{ 'badge-success' if soil_device.is_online else 'badge-danger' }}">
+                                                {{ 'Online' if soil_device.is_online else 'Offline' }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% for actuator in actuators %}
+                                <div class="col-md-3">
+                                    <div class="device-card" style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+                                        <h6>{{ actuator.name }}</h6>
+                                        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                                            Location: {{ actuator.location }}
+                                        </p>
+                                        <p style="margin: 0; font-size: 0.9rem;">
+                                            Status: 
+                                            <span class="badge {{ 'badge-success' if actuator.is_online else 'badge-danger' }}">
+                                                {{ 'Online' if actuator.is_online else 'Offline' }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center" style="padding: 40px;">
+                            <i class="fas fa-microchip" style="font-size: 4rem; color: #ddd; margin-bottom: 20px;"></i>
+                            <h4 style="color: #888;">No IoT devices connected</h4>
+                            <p style="color: #666;">Connect your sensors and actuators to start monitoring your farm.</p>
+                            <a href="{{ url_for('iot.devices') }}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Device
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendCommand(action, deviceId = null) {
+    const payload = { action: action };
+    if (deviceId) {
+        payload.device_id = deviceId;
+    }
+    
+    fetch('/iot/api/command', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'command set') {
+            // Show success message
+            showNotification(`Command sent: ${action}`, 'success');
+        } else {
+            showNotification('Error sending command', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error sending command', 'error');
+    });
+}
+
+function updateSensorData() {
+    fetch('/iot/api/data/latest')
+    .then(response => response.json())
+    .then(data => {
+        // Update temperature
+        if (data.temp !== undefined) {
+            document.getElementById('temp-value').innerHTML = 
+                `${data.temp}<span class="sensor-unit">°C</span>`;
+        }
+        
+        // Update humidity
+        if (data.humidity !== undefined) {
+            document.getElementById('humidity-value').innerHTML = 
+                `${data.humidity}<span class="sensor-unit">%</span>`;
+        }
+        
+        // Update soil moisture
+        if (data.soil !== undefined) {
+            document.getElementById('soil-value').innerHTML = 
+                `${data.soil}<span class="sensor-unit">units</span>`;
+        }
+        
+        // Update timestamp
+        const now = new Date();
+        document.getElementById('update-time').textContent = 
+            now.toLocaleTimeString();
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// Update sensor data every 3 seconds
+setInterval(updateSensorData, 3000);
+
+// Initial load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSensorData();
+});
+</script>
+{% endblock %}

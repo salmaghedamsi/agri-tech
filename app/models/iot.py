@@ -108,3 +108,36 @@ class IoTAlert(db.Model):
     
     def __repr__(self):
         return f'<IoTAlert {self.title} - {self.severity}>'
+
+class IoTCommand(db.Model):
+    __tablename__ = 'iot_commands'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    command = db.Column(db.String(100), nullable=False)  # e.g., 'pump_on', 'pump_off', 'set_irrigation_time'
+    parameters = db.Column(db.JSON)  # Additional command parameters
+    status = db.Column(db.Enum('pending', 'sent', 'executed', 'failed'), default='pending')
+    sent_at = db.Column(db.DateTime)
+    executed_at = db.Column(db.DateTime)
+    response = db.Column(db.JSON)  # Device response
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Foreign keys
+    device_id = db.Column(db.Integer, db.ForeignKey('iot_devices.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    # Relationships
+    device = db.relationship('IoTDevice', backref='commands')
+    user = db.relationship('User', backref='iot_commands')
+    
+    def get_status_color(self):
+        """Get color based on command status"""
+        color_map = {
+            'pending': 'warning',
+            'sent': 'info',
+            'executed': 'success',
+            'failed': 'danger'
+        }
+        return color_map.get(self.status, 'secondary')
+    
+    def __repr__(self):
+        return f'<IoTCommand {self.command} - {self.status}>'
