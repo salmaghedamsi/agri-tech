@@ -152,14 +152,34 @@
                 <div class="accordion-body">
                   {% if module.description %}
                   <p class="mb-3">{{ module.description }}</p>
-                  {% endif %} {% if module.content_type == 'video' and
-                  module.content %}
+                  {% endif %}
+                  
+                  {% if module.content_type == 'video' and module.content %}
                   <div class="mb-3">
                     <div class="ratio ratio-16x9">
-                      <iframe
-                        src="{{ module.content }}"
-                        allowfullscreen
-                      ></iframe>
+                      {% if 'youtube.com' in module.content or 'youtu.be' in module.content %}
+                        <!-- YouTube Embed -->
+                        {% set youtube_id = module.content.split('v=')[1].split('&')[0] if 'v=' in module.content else module.content.split('/')[-1] %}
+                        <iframe
+                          src="https://www.youtube.com/embed/{{ youtube_id }}"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowfullscreen
+                        ></iframe>
+                      {% elif 'vimeo.com' in module.content %}
+                        <!-- Vimeo Embed -->
+                        {% set vimeo_id = module.content.split('/')[-1] %}
+                        <iframe
+                          src="https://player.vimeo.com/video/{{ vimeo_id }}"
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowfullscreen
+                        ></iframe>
+                      {% else %}
+                        <!-- Generic video file -->
+                        <video controls class="w-100">
+                          <source src="{{ module.content }}" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                      {% endif %}
                     </div>
                   </div>
                   {% elif module.content_type == 'text' and module.content %}
@@ -236,10 +256,29 @@
         </div>
         <div class="card-body">
           <div class="ratio ratio-16x9">
-            <iframe
-              src="{{ course.tutorial_video_url }}"
-              allowfullscreen
-            ></iframe>
+            {% if 'youtube.com' in course.tutorial_video_url or 'youtu.be' in course.tutorial_video_url %}
+              <!-- YouTube Embed -->
+              {% set youtube_id = course.tutorial_video_url.split('v=')[1].split('&')[0] if 'v=' in course.tutorial_video_url else course.tutorial_video_url.split('/')[-1] %}
+              <iframe
+                src="https://www.youtube.com/embed/{{ youtube_id }}"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            {% elif 'vimeo.com' in course.tutorial_video_url %}
+              <!-- Vimeo Embed -->
+              {% set vimeo_id = course.tutorial_video_url.split('/')[-1] %}
+              <iframe
+                src="https://player.vimeo.com/video/{{ vimeo_id }}"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            {% else %}
+              <!-- Generic video file -->
+              <video controls class="w-100">
+                <source src="{{ course.tutorial_video_url }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -257,9 +296,7 @@
 
           {% if current_user.is_authenticated %}
             {% if current_user.is_expert() %}
-            <a href="{{ url_for('learning.learn_course', course_id=course.id) }}" class="btn btn-primary btn-lg w-100 mb-2">
-              <i class="fas fa-play me-2"></i>View Course
-            </a>
+              <!-- Removed View Course button for experts -->
             {% else %}
               {% if enrollment %}
               <div class="alert alert-success">
@@ -416,6 +453,8 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script>
@@ -500,7 +539,3 @@ document.getElementById('reorderModulesBtn')?.addEventListener('click', function
 });
 </script>
 {% endblock %}
-
-{% endblock %}
-
-
