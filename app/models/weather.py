@@ -1,6 +1,8 @@
 from datetime import datetime
 from app import db
 from app.models.user import User
+from datetime import datetime, timedelta
+from app import db
 
 class WeatherData(db.Model):
     __tablename__ = 'weather_data'
@@ -117,3 +119,30 @@ def check_weather_alerts(weather):
 
     return alerts
 
+
+def save_weather_and_alerts(weather_data):
+    """Enregistre les données météo et crée des alertes si nécessaire"""
+    # Sauvegarde des données météo
+    db.session.add(weather_data)
+    db.session.commit()
+
+    # Vérifier si des alertes doivent être créées
+    from app.models.weather import check_weather_alerts, WeatherAlert  # éviter import circulaire
+    alerts = check_weather_alerts(weather_data)
+
+    for alert_msg in alerts:
+        alert = WeatherAlert(
+            title=alert_msg,
+            message=f"Condition detected at {weather_data.location}: {alert_msg}",
+            alert_type='warning',
+            severity='high' if ('⚠️' in alert_msg or '🔥' in alert_msg) else 'moderate',
+            location=weather_data.location,
+            latitude=weather_data.latitude,
+            longitude=weather_data.longitude,
+            start_time=datetime.utcnow(),
+            end_time=datetime.utcnow() + timedelta(hours=6),
+            is_active=True
+        )
+        db.session.add(alert)
+
+    db.session.commit()

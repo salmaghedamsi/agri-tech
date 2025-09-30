@@ -201,6 +201,48 @@
         </div>
     </div>
 </div>
+<!-- Subscribe to Alerts Modal -->
+<div class="modal fade" id="subscribeAlertsModal" tabindex="-1" aria-labelledby="subscribeAlertsLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="subscribeAlertsLabel">Subscribe to Weather Alerts</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="alertsPreferencesForm">
+          <div class="mb-3">
+            <label class="form-label">Alert Types</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="alertTypes" value="frost" id="alertFrost">
+              <label class="form-check-label" for="alertFrost">Frost</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="alertTypes" value="heatwave" id="alertHeatwave">
+              <label class="form-check-label" for="alertHeatwave">Heatwave</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="alertTypes" value="storm" id="alertStorm">
+              <label class="form-check-label" for="alertStorm">Storm</label>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Frequency</label>
+            <select class="form-select" name="frequency" id="alertFrequency">
+              <option value="immediate">Immediate</option>
+              <option value="daily">Daily Digest</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="subscribeToWeatherAlerts()">Subscribe</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -246,5 +288,65 @@
     function subscribeToAlerts() {
         alert('Weather alert subscription feature coming soon!');
     }
+
+    // === Weather Alerts Dynamic ===
+function loadWeatherAlerts() {
+    const container = document.getElementById('alerts-container');
+    if (!container) return;
+
+    fetch('/api/weather/alerts')
+        .then(res => res.json())
+        .then(alerts => {
+            container.innerHTML = ''; // clear previous alerts
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = '<p class="text-muted">No weather alerts at this time.</p>';
+                return;
+            }
+
+            alerts.forEach(alert => {
+                const div = document.createElement('div');
+                div.className = `alert alert-${getAlertColor(alert.type)} mb-2`;
+                div.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-${getAlertIcon(alert.type)} fa-2x me-3"></i>
+                        <div>
+                            <h6 class="mb-1">${alert.title}</h6>
+                            <p class="mb-1">${alert.message}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>${new Date(alert.timestamp).toLocaleString()}
+                            </small>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        })
+        .catch(err => console.error('Error loading weather alerts:', err));
+}
+
+function getAlertColor(type) {
+    switch(type) {
+        case 'frost': return 'info';
+        case 'heatwave': return 'danger';
+        case 'storm': return 'warning';
+        default: return 'secondary';
+    }
+}
+
+function getAlertIcon(type) {
+    switch(type) {
+        case 'frost': return 'snowflake';
+        case 'heatwave': return 'fire';
+        case 'storm': return 'cloud-bolt';
+        default: return 'exclamation-triangle';
+    }
+}
+
+// Load alerts on page load and refresh every 5 min
+document.addEventListener('DOMContentLoaded', () => {
+    loadWeatherAlerts();
+    setInterval(loadWeatherAlerts, 300000); // 5 min
+});
+
 </script>
 {% endblock %}

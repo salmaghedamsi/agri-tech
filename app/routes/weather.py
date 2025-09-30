@@ -45,6 +45,10 @@ def api_current_weather():
     # If no recent data or data is older than 1 hour, fetch from API
     if not weather_data or (datetime.utcnow() - weather_data.recorded_at).seconds > 3600:
         weather_data = get_weather_data(location)
+        if weather_data:
+            from app.models.weather import save_weather_and_alerts
+            save_weather_and_alerts(weather_data)
+
     
     if weather_data:
         return jsonify({

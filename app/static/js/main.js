@@ -463,3 +463,66 @@ window.AgriConnect = {
     saveToLocalStorage,
     getFromLocalStorage
 };
+
+
+
+// === Weather Alerts Dynamic ===
+function loadWeatherAlerts() {
+    const container = document.getElementById('alerts-container');
+    if (!container) return;
+
+    fetch('/api/weather/alerts')
+        .then(res => res.json())
+        .then(alerts => {
+            container.innerHTML = ''; // clear previous alerts
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = '<p class="text-muted">No weather alerts at this time.</p>';
+                return;
+            }
+
+            alerts.forEach(alert => {
+                const div = document.createElement('div');
+                div.className = `alert alert-${getAlertColor(alert.type)} mb-2`;
+                div.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-${getAlertIcon(alert.type)} fa-2x me-3"></i>
+                        <div>
+                            <h6 class="mb-1">${alert.title}</h6>
+                            <p class="mb-1">${alert.message}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>${new Date(alert.timestamp).toLocaleString()}
+                            </small>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        })
+        .catch(err => console.error('Error loading weather alerts:', err));
+}
+
+// Helper functions
+function getAlertColor(type) {
+    switch(type) {
+        case 'frost': return 'info';
+        case 'heatwave': return 'danger';
+        case 'storm': return 'warning';
+        default: return 'secondary';
+    }
+}
+
+function getAlertIcon(type) {
+    switch(type) {
+        case 'frost': return 'snowflake';
+        case 'heatwave': return 'fire';
+        case 'storm': return 'cloud-bolt';
+        default: return 'exclamation-triangle';
+    }
+}
+
+// Load on page load and refresh every 5 min
+document.addEventListener('DOMContentLoaded', () => {
+    loadWeatherAlerts();
+    setInterval(loadWeatherAlerts, 300000); // 5 min
+});
+
