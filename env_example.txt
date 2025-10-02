@@ -16,6 +16,7 @@ MAIL_PASSWORD=your-app-password
 
 # API Keys
 OPENAI_API_KEY=your-openai-api-key
+GEMINI_API_KEY=your-gemini-api-key
 WEATHER_API_KEY=your-weather-api-key
 
 # Redis Configuration (for caching and background tasks)

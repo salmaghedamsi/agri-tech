@@ -38,7 +38,6 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)  # Initialize migrate here with app and db
     mail.init_app(app)
-    csrf.init_app(app)
     
     # Configure login manager
     login_manager.login_view = 'auth.login'
@@ -77,6 +76,10 @@ def create_app():
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(grant_bp)
     app.register_blueprint(iot_bp)
+    
+    # Initialize CSRF after blueprints are registered and exempt API routes
+    csrf.init_app(app)
+    csrf.exempt(api_bp)
     
     # Root route
     @app.route('/')

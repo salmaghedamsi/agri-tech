@@ -184,11 +184,40 @@ function initializeChatbot() {
 
 function setLanguage(language) {
     currentLanguage = language;
+    
     // Update UI language indicators
     document.querySelectorAll('.language-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    event.target.classList.add('active');
+    
+    // Add active class to selected language
+    const selectedBtn = document.getElementById(`lang-${language}`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('active');
+    }
+    
+    // Update language display
+    const langNames = {
+        'ar': 'العربية',
+        'tn': 'التونسي',
+        'en': 'English'
+    };
+    
+    const currentLangSpan = document.getElementById('currentLang');
+    if (currentLangSpan) {
+        currentLangSpan.textContent = langNames[language] || language;
+    }
+    
+    // Update placeholder text based on language
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        const placeholders = {
+            'ar': 'اسأل عن أي شيء يخص الزراعة...',
+            'tn': 'اسأل على أي حاجة تخص الفلاحة...',
+            'en': 'Ask me anything about agriculture...'
+        };
+        chatInput.placeholder = placeholders[language] || placeholders['en'];
+    }
 }
 
 function sendMessage() {
@@ -205,6 +234,12 @@ function sendMessage() {
     showTypingIndicator();
 
     // Send message to API
+    console.log('🚀 Sending message to API:', {
+        message: message,
+        session_id: chatSessionId,
+        language: currentLanguage
+    });
+
     fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -216,36 +251,103 @@ function sendMessage() {
             language: currentLanguage
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('📡 Raw response:', response);
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('📦 Response data:', data);
         hideTypingIndicator();
-        addMessageToChat(data.response, 'bot');
-        if (data.session_id) {
-            chatSessionId = data.session_id;
+        
+        if (data && data.response) {
+            console.log('✅ Adding bot response to chat');
+            addMessageToChat(data.response, 'bot');
+            if (data.session_id) {
+                chatSessionId = data.session_id;
+                console.log('💾 Session ID saved:', chatSessionId);
+            }
+        } else {
+            console.error('❌ No response in data:', data);
+            throw new Error('No response received from server');
         }
     })
     .catch(error => {
         hideTypingIndicator();
-        addMessageToChat('Sorry, I encountered an error. Please try again.', 'bot');
-        console.error('Chat error:', error);
+        console.error('❌ Chat error details:', error);
+        console.error('❌ Error type:', error.constructor.name);
+        console.error('❌ Error message:', error.message);
+        
+        const errorMessages = {
+            'ar': 'عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.',
+            'tn': 'عذراني، صار خطأ في الاتصال. جرب مرة أخرى.',
+            'en': 'Sorry, a connection error occurred. Please try again.'
+        };
+        
+        const errorMsg = errorMessages[currentLanguage] || errorMessages['en'];
+        addMessageToChat(`${errorMsg}\n\n🔍 Debug: ${error.message}`, 'bot');
     });
 }
 
 function addMessageToChat(message, sender) {
     const chatMessages = document.getElementById('chatMessages');
+    
+    // Remove welcome message if this is the first real message
+    const welcomeMsg = chatMessages.querySelector('.text-center.text-muted');
+    if (welcomeMsg && (sender === 'user' || sender === 'bot')) {
+        welcomeMsg.remove();
+    }
+    
     const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${sender}`;
+    messageDiv.className = `message-wrapper mb-3 ${sender}`;
     
     const time = new Date().toLocaleTimeString();
-    messageDiv.innerHTML = `
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <strong>${sender === 'user' ? 'You' : 'AI Assistant'}</strong>
-                <p class="mb-1">${message}</p>
+    
+    // Format the message content - preserve line breaks and structure
+    const formattedMessage = message
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Bold text
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');  // Italic text
+    
+    const isRTL = /[\u0600-\u06FF\u0750-\u077F]/.test(message); // Detect Arabic/RTL text
+    
+    if (sender === 'user') {
+        messageDiv.innerHTML = `
+            <div class="d-flex justify-content-end mb-2">
+                <div class="user-message p-3 rounded-3 bg-primary text-white shadow-sm" style="max-width: 80%; ${isRTL ? 'direction: rtl; text-align: right;' : ''}">
+                    <div class="message-content">${formattedMessage}</div>
+                    <div class="message-time mt-1">
+                        <small class="opacity-75">${time}</small>
+                    </div>
+                </div>
+                <div class="ms-2">
+                    <i class="fas fa-user-circle fa-2x text-primary"></i>
+                </div>
             </div>
-            <small class="text-muted">${time}</small>
-        </div>
-    `;
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="d-flex justify-content-start mb-2">
+                <div class="me-2">
+                    <i class="fas fa-robot fa-2x text-success"></i>
+                </div>
+                <div class="bot-message p-3 rounded-3 bg-light border shadow-sm" style="max-width: 85%; ${isRTL ? 'direction: rtl; text-align: right;' : ''}">
+                    <div class="d-flex align-items-center mb-2">
+                        <strong class="text-success">🌾 المساعد الزراعي الذكي</strong>
+                    </div>
+                    <div class="message-content" style="line-height: 1.6; white-space: pre-line;">${formattedMessage}</div>
+                    <div class="message-time mt-2">
+                        <small class="text-muted">${time}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
     
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -254,14 +356,21 @@ function addMessageToChat(message, sender) {
 function showTypingIndicator() {
     const chatMessages = document.getElementById('chatMessages');
     const typingDiv = document.createElement('div');
-    typingDiv.className = 'chat-message bot typing-indicator';
+    typingDiv.className = 'message-wrapper mb-3 typing-indicator';
     typingDiv.id = 'typingIndicator';
     typingDiv.innerHTML = `
-        <div class="d-flex align-items-center">
-            <div class="spinner-border spinner-border-sm me-2" role="status">
-                <span class="visually-hidden">Loading...</span>
+        <div class="d-flex justify-content-start mb-2">
+            <div class="me-2">
+                <i class="fas fa-robot fa-2x text-success"></i>
             </div>
-            <span>AI is typing...</span>
+            <div class="bot-message p-3 rounded-3 bg-light border shadow-sm">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2 text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="text-success">🌾 يفكر في إجابتك الزراعية...</span>
+                </div>
+            </div>
         </div>
     `;
     

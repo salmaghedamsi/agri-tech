@@ -135,12 +135,31 @@ def search():
 @api_bp.route('/chat', methods=['POST'])
 def chat():
     """AI Chatbot API"""
-    data = request.get_json()
+    print("🚀 Chat API endpoint called")
+    print(f"📡 Request method: {request.method}")
+    print(f"📡 Request headers: {dict(request.headers)}")
+    
+    try:
+        data = request.get_json()
+        print(f"📦 Request data: {data}")
+    except Exception as e:
+        print(f"❌ Error parsing JSON: {e}")
+        return jsonify({'error': 'Invalid JSON data'}), 400
+    
+    if not data:
+        print("❌ No JSON data received")
+        return jsonify({'error': 'No JSON data received'}), 400
+    
     message = data.get('message', '')
     session_id = data.get('session_id', '')
     language = data.get('language', 'en')
     
+    print(f"📝 Message: '{message}'")
+    print(f"🔤 Language: {language}")
+    print(f"🆔 Session ID: {session_id}")
+    
     if not message:
+        print("❌ Message is required")
         return jsonify({'error': 'Message is required'}), 400
     
     # Get or create chat session
@@ -166,26 +185,58 @@ def chat():
     )
     db.session.add(user_message)
     
-    # Get AI response
-    start_time = time.time()
-    ai_response = get_ai_response(message, language, session.id)
-    response_time = int((time.time() - start_time) * 1000)
-    
-    # Save AI response
-    bot_message = ChatMessage(
-        content=ai_response,
-        message_type='bot',
-        session_id=session.id,
-        response_time_ms=response_time
-    )
-    db.session.add(bot_message)
-    db.session.commit()
-    
-    return jsonify({
-        'response': ai_response,
-        'session_id': session.session_id,
-        'response_time': response_time
-    })
+    # Get AI response with error handling
+    try:
+        start_time = time.time()
+        print(f"🧠 Processing chat message: '{message}' (language: {language})")
+        
+        ai_response = get_ai_response(message, language, session.id)
+        response_time = int((time.time() - start_time) * 1000)
+        
+        print(f"✅ AI response generated in {response_time}ms")
+        
+        # Ensure we have a valid response
+        if not ai_response or len(ai_response.strip()) < 3:
+            ai_response = "I'm sorry, I couldn't generate a proper response. Please try again with a different question."
+        
+        # Save AI response
+        bot_message = ChatMessage(
+            content=ai_response,
+            message_type='bot',
+            session_id=session.id,
+            response_time_ms=response_time
+        )
+        db.session.add(bot_message)
+        db.session.commit()
+        
+        return jsonify({
+            'response': ai_response,
+            'session_id': session.session_id,
+            'response_time': response_time
+        })
+        
+    except Exception as e:
+        print(f"❌ Chat API error: {e}")
+        error_response = "Sorry, I encountered an error. Please try again."
+        
+        # Save error response
+        try:
+            bot_message = ChatMessage(
+                content=error_response,
+                message_type='bot',
+                session_id=session.id,
+                response_time_ms=0
+            )
+            db.session.add(bot_message)
+            db.session.commit()
+        except:
+            pass  # Don't fail if we can't save the error message
+        
+        return jsonify({
+            'response': error_response,
+            'session_id': session.session_id if session else '',
+            'response_time': 0
+        })
 
 @api_bp.route('/weather/current')
 def weather_current():
