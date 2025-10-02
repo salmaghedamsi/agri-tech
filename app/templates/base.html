@@ -213,22 +213,30 @@
                 </div>
                 <div class="modal-body">
                     <div class="chat-container"
-                        style="height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px;">
+                        style="height: 500px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 8px; background-color: #f8f9fa;">
                         <div id="chatMessages">
-                            <div class="text-center text-muted">
-                                <i class="fas fa-robot fa-2x mb-2"></i>
-                                <p>Hello! I'm your AI agricultural assistant. How can I help you today?</p>
+                            <div class="text-center text-muted mb-3">
+                                <i class="fas fa-robot fa-3x mb-3 text-success"></i>
+                                <h6>🌾 مرحبا بك في مساعدك الزراعي الذكي</h6>
+                                <p class="mb-1">Hello! I'm your AI agricultural assistant.</p>
+                                <p class="mb-1">أهلاً! أنا مساعدك الزراعي الذكي.</p>
+                                <p class="small">اختر لغتك المفضلة وابدأ بسؤالك الزراعي</p>
                             </div>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-outline-primary btn-sm"
-                                onclick="setLanguage('en')">English</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm"
-                                onclick="setLanguage('ar')">العربية</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm"
-                                onclick="setLanguage('tn')">تونسي</button>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm language-btn active"
+                                    onclick="setLanguage('ar')" id="lang-ar">العربية</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm language-btn"
+                                    onclick="setLanguage('tn')" id="lang-tn">تونسي</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm language-btn"
+                                    onclick="setLanguage('en')" id="lang-en">English</button>
+                            </div>
+                            <small class="text-muted">
+                                <span id="currentLang">العربية</span> selected
+                            </small>
                         </div>
                     </div>
                 </div>
