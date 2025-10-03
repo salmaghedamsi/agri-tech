@@ -1,0 +1,27 @@
+# Environnements virtuels
+venv/
+env/
+
+# Fichiers compilés Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Fichiers temporaires
+*.log
+*.pot
+*$py.class
+
+# Base de données locale
+*.db
+instance/
+
+# Migrations (si besoin d’être régénérées automatiquement)
+migrations/
+
+# Config éditeurs / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
